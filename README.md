@@ -38,7 +38,7 @@
 | 语音播报（输出） | 待实现                          | —                           |
 | 数据存储        | localStorage                   | 无需后端，简单可靠           |
 | 界面框架        | 原生 HTML/CSS/JavaScript       | 无需额外框架                |
-| 时间解析        | 自然语言解析（Claude API）       | 准确理解"明天""下周一"等模糊表达 |
+| 时间解析        | 自然语言解析（DeepSeek API）     | 准确理解"明天""下周一"等模糊表达 |
 
 ## 语音交互示例
 
@@ -52,7 +52,7 @@
 ## 本地运行
 
 1. 克隆仓库
-2. 在 `parser.js` 中填入你的 Claude API Key
+2. 在 `parser.js` 中填入你的 DeepSeek API Key
 3. 用 Chrome 浏览器打开 `index.html`（需麦克风权限，需联网）
 
 ## 已知限制

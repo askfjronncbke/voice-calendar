@@ -144,8 +144,13 @@ function showEventPanel(dateStr) {
   const dateEl = document.getElementById("eventPanelDate");
   const listEl = document.getElementById("eventList");
 
-  const [y, m, d] = dateStr.split("-");
-  dateEl.textContent = y + "年" + m + "月" + d + "日";
+  // 容错：对非标准日期格式做显示处理
+  const parts = dateStr.split("-");
+  if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+    dateEl.textContent = parts[0] + "年" + parts[1] + "月" + parts[2] + "日";
+  } else {
+    dateEl.textContent = dateStr;
+  }
 
   const events = getEventsByDate(dateStr);
   listEl.innerHTML = "";

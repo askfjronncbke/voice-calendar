@@ -17,7 +17,7 @@ let audioContext = null;
 let mediaStream = null;
 let scriptProcessor = null;
 let frameIndex = 0;
-let resultText = "";
+let accumulatedText = "";
 let micBtn = null;
 let voiceResult = null;
 let voiceError = null;
@@ -145,20 +145,32 @@ function handleMessage(event) {
   if (!msg.data || !msg.data.result) return;
 
   const result = msg.data.result;
-  let text = "";
 
+  // 拼接当前片段的所有词
+  let frag = "";
   for (const wsItem of result.ws) {
     for (const cw of wsItem.cw) {
-      text += cw.w;
+      frag += cw.w;
     }
   }
 
-  resultText = text;
-  voiceResult.textContent = resultText;
+  console.log("iFlytek fragment:", JSON.stringify(frag), "sn:", result.sn, "ls:", result.ls);
+
+  // wpgs 模式每条消息含当前句子的完整文本（非增量），直接覆盖该句
+  // 但有时最后一条消息只剩标点，所以只有含实质内容时才更新
+  const hasContent = frag.replace(/[。，！？、\.\,\!\?\s]/g, "").length > 0;
+  if (hasContent || !accumulatedText) {
+    accumulatedText = frag;
+  }
+
+  voiceResult.textContent = accumulatedText;
   voiceResult.classList.remove("listening");
 
-  if (result.ls) {
+  // 收到最终结果时触发解析
+  if (result.ls && accumulatedText.replace(/[。，！？、\.\,\!\?\s]/g, "").length > 0) {
+    console.log("Final text for parsing:", JSON.stringify(accumulatedText));
     voiceError.textContent = "";
+    parseAndExecute(accumulatedText.trim());
   }
 }
 
@@ -166,7 +178,7 @@ function handleMessage(event) {
 
 async function startRecording() {
   voiceError.textContent = "";
-  resultText = "";
+  accumulatedText = "";
   voiceResult.textContent = "正在聆听...";
   voiceResult.classList.add("listening");
   micBtn.classList.add("recording");
@@ -251,6 +263,7 @@ function stopRecording() {
 function cleanupRecording() {
   isRecording = false;
   micBtn.classList.remove("recording");
+  accumulatedText = "";
 
   if (voiceResult.textContent === "正在聆听..." || !voiceResult.textContent) {
     voiceResult.classList.remove("listening");

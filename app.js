@@ -1,11 +1,15 @@
 // ============================================
 // 主逻辑入口
 // - 初始化日历界面
-// - 绑定语音按钮事件
-// - 串联语音识别 → AI解析 → 事件操作 → 语音播报的完整流程
+// - 全局事件：点击空白处关闭语音提示
 // ============================================
 
-// 确认 storage.js 已加载，对外暴露三个核心操作：
-//   addEvent(date, time, title)
-//   deleteEvent(id)
-//   getEventsByDate(date)
+document.addEventListener("click", function (e) {
+  // 点击麦克风按钮时不关闭提示（按钮有自己的交互逻辑）
+  if (e.target.closest("#micBtn")) return;
+
+  var vr = document.getElementById("voiceResult");
+  var ve = document.getElementById("voiceError");
+  if (vr) vr.textContent = "";
+  if (ve) ve.textContent = "";
+});
