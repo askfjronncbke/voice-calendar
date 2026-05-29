@@ -262,15 +262,66 @@ function formatEventList(events) {
 
 // ---------- 执行操作 ----------
 
+let pendingAdd = null; // 待确认的添加数据
+
 function executeAdd(parsed) {
+  // 检查同日期同时段的冲突
+  if (parsed.time) {
+    const conflicts = getEventsByDate(parsed.date).filter((e) => e.time === parsed.time);
+    if (conflicts.length > 0) {
+      const cf = conflicts[0];
+      pendingAdd = parsed;
+      voiceResult.textContent = "";
+      voiceError.textContent = "";
+      showConflictPrompt(parsed.date, parsed.time, cf.title);
+      speak("该时间已有安排，" + cf.title + "，是否继续添加？");
+      return;
+    }
+  }
+  doAddEvent(parsed);
+}
+
+function doAddEvent(parsed) {
   const ev = addEvent(parsed.date, parsed.time || "", parsed.title);
   voiceResult.textContent = "已添加：" + ev.title;
   voiceError.textContent = "";
+  hideConflictPrompt();
   speak("已添加，" + fmtSpokenDate(ev.date) + (ev.time ? "，" + fmtSpokenTime(ev.time) : "") + "，" + ev.title);
   renderCalendar();
   selectedDate = parsed.date;
   renderCalendar();
   showEventPanel(parsed.date);
+  pendingAdd = null;
+}
+
+function confirmAdd() {
+  if (pendingAdd) {
+    doAddEvent(pendingAdd);
+  }
+}
+
+function cancelAdd() {
+  if (pendingAdd) {
+    voiceResult.textContent = "已取消添加";
+    hideConflictPrompt();
+    pendingAdd = null;
+  }
+}
+
+function showConflictPrompt(date, time, conflictTitle) {
+  const prompt = document.getElementById("conflictPrompt");
+  const msg = document.getElementById("conflictMsg");
+  if (prompt && msg) {
+    msg.textContent = fmtSpokenDate(date) + " " + fmtSpokenTime(time) + " 已有安排：" + conflictTitle + "，是否继续添加？";
+    prompt.classList.add("show");
+  }
+}
+
+function hideConflictPrompt() {
+  const prompt = document.getElementById("conflictPrompt");
+  if (prompt) {
+    prompt.classList.remove("show");
+  }
 }
 
 function executeQuery(parsed) {
