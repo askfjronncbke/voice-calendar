@@ -60,6 +60,10 @@ function buildDateContext() {
 
   const thisMonth = fmtDateISO(now.getFullYear(), now.getMonth(), 1).slice(0, 7); // "YYYY-MM"
 
+  // 下周范围（周一到周日）
+  const nextWeekStart = nextWeek["周一"];
+  const nextWeekEnd = nextWeek["周日"];
+
   return {
     today,
     todayWeekday: "周" + dayOfWeek,
@@ -71,6 +75,8 @@ function buildDateContext() {
     weekendStart,
     weekendEnd,
     thisMonth,
+    nextWeekStart,
+    nextWeekEnd,
   };
 }
 
@@ -151,7 +157,7 @@ function buildSystemPrompt() {
 这周末=${ctx.weekendStart}~${ctx.weekendEnd}（周六和周日，共两天）
 下周：${nextWeekTable}
 （重要："这周X"用的是中文习惯以周一为每周第一天，例如"这周日"一定是未来的那个周日，绝不会是过去日期）
-（date 字段必须是 YYYY-MM-DD 格式，或查询月份时用 YYYY-MM 格式，或周末查询时用 "weekend"。禁止返回 "next_week" 等其他格式！）
+（date 字段必须是 YYYY-MM-DD 格式，或查询月份时用 YYYY-MM 格式，或周末查询时用 "weekend"，或下周查询时用 "next_week"。禁止返回其他格式！）
 
 时间转换（必须严格转换）：
 下午X点 → (X+12):00  （下午三点=15:00、下午3点=15:00、下午五点=17:00）
@@ -168,9 +174,11 @@ X点半 → XX:30        （下午三点半=15:30）
 add: {"action":"add","date":"日期","time":"时间","title":"标题"}
 query: 查单天 → {"action":"query","date":"日期"}
        查月份 → {"action":"query","date":"月份"}（格式："${ctx.thisMonth}"，即YYYY-MM）
+       查下周 → {"action":"query","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}"}
        查周末 → {"action":"query","date":"weekend","weekend_start":"${ctx.weekendStart}","weekend_end":"${ctx.weekendEnd}"}
        （用户说"这周末有什么安排"时，必须用 weekend 格式）
        （用户说"这个月有什么事"/"本月有什么安排"时，必须用月份格式 date="${ctx.thisMonth}"）
+       （用户说"下周有什么安排"/"下个星期有什么事"时，必须用 next_week 格式，week_start="${ctx.nextWeekStart}"，week_end="${ctx.nextWeekEnd}"）
 delete: {"action":"delete","date":"日期","keywords":"关键词"}
   （keywords 是从用户话里提取的、用于匹配事件标题的具体内容词）
   （重要！禁止使用泛指词：安排、日程、事情、事项、事件、计划——这些不是事件标题，不能作为keywords）
@@ -193,7 +201,10 @@ delete: {"action":"delete","date":"日期","keywords":"关键词"}
   注意：周末必须用 weekend 格式，同时查周六和周日两天。
 - 输入："这个月还有什么事呢"
   输出：{"action":"query","date":"${ctx.thisMonth}"}
-  注意：月份查询用YYYY-MM格式，不要用YYYY-MM-DD。`;
+  注意：月份查询用YYYY-MM格式，不要用YYYY-MM-DD。
+- 输入："我下周有什么安排"
+  输出：{"action":"query","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}"}
+  注意：下周必须用 next_week 格式，同时查周一至周日全部七天。`;
 }
 
 // ---------- 日期显示格式化 ----------
@@ -244,6 +255,29 @@ function executeQuery(parsed) {
     selectedDate = parsed.weekend_start;
     renderCalendar();
     showEventPanel(parsed.weekend_start);
+    return;
+  }
+
+  // 下周查询：合并周一到周日的事件
+  if (parsed.date === "next_week" && parsed.week_start && parsed.week_end) {
+    const allEvents = getAllEvents().filter(
+      (e) => e.date >= parsed.week_start && e.date <= parsed.week_end
+    );
+    const startDisplay = parsed.week_start.replace(/^\d+-/, "").replace("-", "月") + "日";
+    const endDisplay = parsed.week_end.replace(/^\d+-/, "").replace("-", "月") + "日";
+
+    if (allEvents.length === 0) {
+      voiceResult.textContent = "下周（" + startDisplay + "-" + endDisplay + "）暂无安排";
+    } else {
+      const list = allEvents
+        .map((e) => e.date + " " + (e.time ? e.time + " " : "") + e.title)
+        .join("；");
+      voiceResult.textContent = "下周（" + startDisplay + "-" + endDisplay + "）共 " + allEvents.length + " 个事件：" + list;
+    }
+
+    selectedDate = parsed.week_start;
+    renderCalendar();
+    showEventPanel(parsed.week_start);
     return;
   }
 
