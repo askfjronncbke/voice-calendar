@@ -4,3 +4,8 @@
 // - 绑定语音按钮事件
 // - 串联语音识别 → AI解析 → 事件操作 → 语音播报的完整流程
 // ============================================
+
+// 确认 storage.js 已加载，对外暴露三个核心操作：
+//   addEvent(date, time, title)
+//   deleteEvent(id)
+//   getEventsByDate(date)
