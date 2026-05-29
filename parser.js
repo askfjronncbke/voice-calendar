@@ -221,6 +221,23 @@ function fmtDisplay(dateStr) {
   return dateStr;
 }
 
+// ---------- 事件排序与格式化 ----------
+
+function sortEvents(events) {
+  return events.slice().sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    const ta = a.time || "00:00";
+    const tb = b.time || "00:00";
+    return ta.localeCompare(tb);
+  });
+}
+
+function formatEventList(events) {
+  return sortEvents(events)
+    .map((e) => e.date + " " + (e.time ? e.time + " " : "") + e.title)
+    .join("；");
+}
+
 // ---------- 执行操作 ----------
 
 function executeAdd(parsed) {
@@ -245,10 +262,7 @@ function executeQuery(parsed) {
     if (allEvents.length === 0) {
       voiceResult.textContent = "周末暂无安排";
     } else {
-      const list = allEvents
-        .map((e) => e.date + " " + (e.time ? e.time + " " : "") + e.title)
-        .join("；");
-      voiceResult.textContent = "周末有 " + allEvents.length + " 个事件：" + list;
+      voiceResult.textContent = "周末 共 " + allEvents.length + " 个事件：\n" + formatEventList(allEvents);
     }
 
     // 显示周六的事件面板
@@ -269,10 +283,7 @@ function executeQuery(parsed) {
     if (allEvents.length === 0) {
       voiceResult.textContent = "下周（" + startDisplay + "-" + endDisplay + "）暂无安排";
     } else {
-      const list = allEvents
-        .map((e) => e.date + " " + (e.time ? e.time + " " : "") + e.title)
-        .join("；");
-      voiceResult.textContent = "下周（" + startDisplay + "-" + endDisplay + "）共 " + allEvents.length + " 个事件：" + list;
+      voiceResult.textContent = "下周（" + startDisplay + "-" + endDisplay + "）共 " + allEvents.length + " 个事件：\n" + formatEventList(allEvents);
     }
 
     selectedDate = parsed.week_start;
@@ -288,16 +299,13 @@ function executeQuery(parsed) {
     if (allEvents.length === 0) {
       voiceResult.textContent = fmtDisplay(monthPrefix) + " 暂无安排";
     } else {
-      const list = allEvents
-        .map((e) => e.date + " " + (e.time ? e.time + " " : "") + e.title)
-        .join("；");
-      voiceResult.textContent = fmtDisplay(monthPrefix) + " 共 " + allEvents.length + " 个事件：" + list;
+      voiceResult.textContent = fmtDisplay(monthPrefix) + " 共 " + allEvents.length + " 个事件：\n" + formatEventList(allEvents);
     }
     return;
   }
 
   // 单日查询
-  const events = getEventsByDate(parsed.date);
+  const events = sortEvents(getEventsByDate(parsed.date));
   if (events.length === 0) {
     voiceResult.textContent = fmtDisplay(parsed.date) + " 暂无安排";
   } else {
