@@ -7,11 +7,22 @@
 // ============================================
 
 let currentYear, currentMonth;
+let selectedDate = null; // "YYYY-MM-DD"
+
+function fmtDate(year, month, day) {
+  return (
+    String(year).padStart(4, "0") +
+    "-" +
+    String(month + 1).padStart(2, "0") +
+    "-" +
+    String(day).padStart(2, "0")
+  );
+}
 
 function initCalendar() {
   const today = new Date();
   currentYear = today.getFullYear();
-  currentMonth = today.getMonth(); // 0-indexed
+  currentMonth = today.getMonth();
   renderCalendar();
 
   document.getElementById("prevMonth").addEventListener("click", () => {
@@ -20,6 +31,7 @@ function initCalendar() {
       currentMonth = 11;
       currentYear--;
     }
+    selectedDate = null;
     renderCalendar();
   });
 
@@ -29,18 +41,19 @@ function initCalendar() {
       currentMonth = 0;
       currentYear++;
     }
+    selectedDate = null;
     renderCalendar();
   });
 }
 
 function renderCalendar() {
-  const monthYearEl = document.getElementById("monthYear");
-  monthYearEl.textContent = currentYear + "年" + (currentMonth + 1) + "月";
+  document.getElementById("monthYear").textContent =
+    currentYear + "年" + (currentMonth + 1) + "月";
 
   const daysGrid = document.getElementById("daysGrid");
   daysGrid.innerHTML = "";
 
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0=Sun
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
 
@@ -49,35 +62,47 @@ function renderCalendar() {
   const todayMonth = today.getMonth();
   const todayYear = today.getFullYear();
 
-  const totalCells = 42; // 6 rows × 7 cols
+  const totalCells = 42;
 
   for (let i = 0; i < totalCells; i++) {
     const cell = document.createElement("div");
     cell.classList.add("day-cell");
 
-    let date, isOtherMonth = false;
+    let day, isOtherMonth = false, cellMonth, cellYear;
 
     if (i < firstDay) {
-      // 上个月末尾的日期
-      date = daysInPrevMonth - firstDay + i + 1;
+      day = daysInPrevMonth - firstDay + i + 1;
       isOtherMonth = true;
+      cellMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      cellYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     } else if (i - firstDay >= daysInMonth) {
-      // 下个月开头的日期
-      date = i - firstDay - daysInMonth + 1;
+      day = i - firstDay - daysInMonth + 1;
       isOtherMonth = true;
+      cellMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+      cellYear = currentMonth === 11 ? currentYear + 1 : currentYear;
     } else {
-      // 当月日期
-      date = i - firstDay + 1;
+      day = i - firstDay + 1;
+      cellMonth = currentMonth;
+      cellYear = currentYear;
     }
 
-    cell.textContent = date;
+    cell.textContent = day;
+
+    const dateStr = fmtDate(cellYear, cellMonth, day);
+
+    // 事件小圆点
+    if (getEventsByDate(dateStr).length > 0) {
+      const dot = document.createElement("span");
+      dot.classList.add("dot");
+      cell.appendChild(dot);
+    }
 
     if (isOtherMonth) {
       cell.classList.add("other-month");
     }
 
     if (
-      date === todayDate &&
+      day === todayDate &&
       !isOtherMonth &&
       currentMonth === todayMonth &&
       currentYear === todayYear
@@ -85,8 +110,94 @@ function renderCalendar() {
       cell.classList.add("today");
     }
 
+    if (dateStr === selectedDate && !isOtherMonth) {
+      cell.classList.add("selected");
+    }
+
+    cell.addEventListener("click", () => {
+      if (isOtherMonth) return;
+      selectedDate = dateStr;
+      renderCalendar();
+      showEventPanel(dateStr);
+    });
+
     daysGrid.appendChild(cell);
   }
+
+  // 重新渲染后恢复事件面板（当 selectedDate 在当前月份时）
+  if (selectedDate) {
+    const [y, m] = selectedDate.split("-").map(Number);
+    if (y === currentYear && m === currentMonth + 1) {
+      showEventPanel(selectedDate);
+    } else {
+      hideEventPanel();
+    }
+  } else {
+    hideEventPanel();
+  }
+}
+
+// ---------- 事件列表面板 ----------
+
+function showEventPanel(dateStr) {
+  const panel = document.getElementById("eventPanel");
+  const dateEl = document.getElementById("eventPanelDate");
+  const listEl = document.getElementById("eventList");
+
+  const [y, m, d] = dateStr.split("-");
+  dateEl.textContent = y + "年" + m + "月" + d + "日";
+
+  const events = getEventsByDate(dateStr);
+  listEl.innerHTML = "";
+
+  if (events.length === 0) {
+    const empty = document.createElement("div");
+    empty.classList.add("event-empty");
+    empty.textContent = "暂无事件";
+    listEl.appendChild(empty);
+  } else {
+    events.forEach((ev) => {
+      const item = document.createElement("div");
+      item.classList.add("event-item");
+
+      const info = document.createElement("div");
+      info.classList.add("event-info");
+
+      const title = document.createElement("span");
+      title.classList.add("event-title");
+      title.textContent = ev.title;
+
+      const time = document.createElement("span");
+      time.classList.add("event-time");
+      time.textContent = ev.time || "全天";
+
+      info.appendChild(title);
+      info.appendChild(time);
+
+      const delBtn = document.createElement("button");
+      delBtn.classList.add("event-delete");
+      delBtn.textContent = "×";
+      delBtn.title = "删除事件";
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteEvent(ev.id);
+        // 重新渲染日历圆点 + 事件列表
+        renderCalendar();
+        showEventPanel(dateStr);
+      });
+
+      item.appendChild(info);
+      item.appendChild(delBtn);
+      listEl.appendChild(item);
+    });
+  }
+
+  panel.classList.add("show");
+}
+
+function hideEventPanel() {
+  const panel = document.getElementById("eventPanel");
+  panel.classList.remove("show");
 }
 
 document.addEventListener("DOMContentLoaded", initCalendar);

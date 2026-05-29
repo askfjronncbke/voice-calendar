@@ -88,6 +88,7 @@ body {
   cursor: pointer;
   transition: background 0.2s;
   color: #ccc;
+  position: relative;
 }
 
 .day-cell:hover {
@@ -102,4 +103,101 @@ body {
   background: #e94560;
   color: #fff;
   font-weight: 600;
+}
+
+.day-cell.selected {
+  background: #0f3460;
+  color: #fff;
+}
+
+.day-cell.today.selected {
+  background: #e94560;
+  box-shadow: 0 0 0 2px #0f3460;
+}
+
+/* ---------- 事件小圆点 ---------- */
+.day-cell .dot {
+  position: absolute;
+  bottom: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e94560;
+}
+
+/* ---------- 事件列表面板 ---------- */
+.event-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #2a2a4a;
+  display: none;
+}
+
+.event-panel.show {
+  display: block;
+}
+
+.event-panel-header {
+  margin-bottom: 12px;
+}
+
+.event-panel-date {
+  font-size: 15px;
+  color: #aaa;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #16213e;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.event-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.event-title {
+  font-size: 15px;
+  color: #fff;
+}
+
+.event-time {
+  font-size: 13px;
+  color: #888;
+}
+
+.event-delete {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #888;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.event-delete:hover {
+  background: #e94560;
+  color: #fff;
+}
+
+.event-empty {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  padding: 20px 0;
 }
