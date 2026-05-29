@@ -5,11 +5,21 @@
 // ============================================
 
 document.addEventListener("click", function (e) {
-  // 点击麦克风按钮时不关闭提示（按钮有自己的交互逻辑）
+  // 按钮有自己的交互逻辑，不关闭提示
   if (e.target.closest("#micBtn")) return;
+  if (e.target.closest("#conflictConfirm")) return;
+  if (e.target.closest("#conflictCancel")) return;
 
   var vr = document.getElementById("voiceResult");
   var ve = document.getElementById("voiceError");
   if (vr) vr.textContent = "";
   if (ve) ve.textContent = "";
+});
+
+// 冲突提示按钮事件
+document.addEventListener("DOMContentLoaded", function () {
+  var confirmBtn = document.getElementById("conflictConfirm");
+  var cancelBtn = document.getElementById("conflictCancel");
+  if (confirmBtn) confirmBtn.addEventListener("click", confirmAdd);
+  if (cancelBtn) cancelBtn.addEventListener("click", cancelAdd);
 });
