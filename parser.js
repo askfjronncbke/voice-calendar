@@ -221,6 +221,28 @@ function fmtDisplay(dateStr) {
   return dateStr;
 }
 
+// ---------- 语音播报文本格式化 ----------
+
+function fmtSpokenDate(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length >= 3) {
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
+    return m + "月" + d + "日";
+  }
+  return dateStr;
+}
+
+function fmtSpokenTime(timeStr) {
+  if (!timeStr) return "";
+  const parts = timeStr.split(":");
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (m === 0) return h + "点";
+  return h + "点" + m + "分";
+}
+
 // ---------- 事件排序与格式化 ----------
 
 function sortEvents(events) {
@@ -244,6 +266,7 @@ function executeAdd(parsed) {
   const ev = addEvent(parsed.date, parsed.time || "", parsed.title);
   voiceResult.textContent = "已添加：" + ev.title;
   voiceError.textContent = "";
+  speak("已添加，" + fmtSpokenDate(ev.date) + (ev.time ? "，" + fmtSpokenTime(ev.time) : "") + "，" + ev.title);
   renderCalendar();
   selectedDate = parsed.date;
   renderCalendar();
@@ -261,8 +284,10 @@ function executeQuery(parsed) {
 
     if (allEvents.length === 0) {
       voiceResult.textContent = "周末暂无安排";
+      speak("周末暂无安排");
     } else {
       voiceResult.textContent = "周末 共 " + allEvents.length + " 个事件：\n" + formatEventList(allEvents);
+      speak("周末共" + allEvents.length + "个事件，" + sortEvents(allEvents).map((e) => (e.time ? fmtSpokenTime(e.time) + "，" : "") + e.title).join("，"));
     }
 
     // 显示周六的事件面板
@@ -282,8 +307,10 @@ function executeQuery(parsed) {
 
     if (allEvents.length === 0) {
       voiceResult.textContent = "下周（" + startDisplay + "-" + endDisplay + "）暂无安排";
+      speak("下周暂无安排");
     } else {
       voiceResult.textContent = "下周（" + startDisplay + "-" + endDisplay + "）共 " + allEvents.length + " 个事件：\n" + formatEventList(allEvents);
+      speak("下周共" + allEvents.length + "个事件，" + sortEvents(allEvents).map((e) => fmtSpokenDate(e.date) + "，" + (e.time ? fmtSpokenTime(e.time) + "，" : "") + e.title).join("，"));
     }
 
     selectedDate = parsed.week_start;
@@ -298,8 +325,10 @@ function executeQuery(parsed) {
     const allEvents = getAllEvents().filter((e) => e.date.startsWith(monthPrefix));
     if (allEvents.length === 0) {
       voiceResult.textContent = fmtDisplay(monthPrefix) + " 暂无安排";
+      speak(fmtDisplay(monthPrefix) + "暂无安排");
     } else {
       voiceResult.textContent = fmtDisplay(monthPrefix) + " 共 " + allEvents.length + " 个事件：\n" + formatEventList(allEvents);
+      speak(fmtDisplay(monthPrefix) + "共" + allEvents.length + "个事件，" + sortEvents(allEvents).map((e) => fmtSpokenDate(e.date) + "，" + (e.time ? fmtSpokenTime(e.time) + "，" : "") + e.title).join("，"));
     }
     return;
   }
@@ -308,9 +337,11 @@ function executeQuery(parsed) {
   const events = sortEvents(getEventsByDate(parsed.date));
   if (events.length === 0) {
     voiceResult.textContent = fmtDisplay(parsed.date) + " 暂无安排";
+    speak(fmtDisplay(parsed.date) + "暂无安排");
   } else {
     const list = events.map((e) => (e.time ? e.time + " " : "") + e.title).join("；");
     voiceResult.textContent = fmtDisplay(parsed.date) + " 有 " + events.length + " 个事件：" + list;
+    speak(fmtDisplay(parsed.date) + "有" + events.length + "个事件，" + events.map((e) => (e.time ? fmtSpokenTime(e.time) + "，" : "") + e.title).join("，"));
   }
   selectedDate = parsed.date;
   renderCalendar();
@@ -324,6 +355,7 @@ function executeDelete(parsed) {
   if (dateEvents.length === 0) {
     voiceResult.textContent = "";
     voiceError.textContent = fmtDisplay(parsed.date) + " 没有事件";
+    speak(fmtDisplay(parsed.date) + "没有事件");
     renderCalendar();
     return;
   }
@@ -333,6 +365,7 @@ function executeDelete(parsed) {
     dateEvents.forEach((e) => deleteEvent(e.id));
     voiceResult.textContent =
       "已删除：" + fmtDisplay(parsed.date) + " 全部 " + dateEvents.length + " 个事件";
+    speak("已删除，" + fmtDisplay(parsed.date) + "全部" + dateEvents.length + "个事件");
     renderCalendar();
     return;
   }
@@ -342,6 +375,7 @@ function executeDelete(parsed) {
     const ev = dateEvents[0];
     deleteEvent(ev.id);
     voiceResult.textContent = "已删除：" + ev.date + " " + ev.title;
+    speak("已删除，" + ev.title);
     renderCalendar();
     selectedDate = parsed.date;
     renderCalendar();
@@ -355,6 +389,7 @@ function executeDelete(parsed) {
     const target = matches[matches.length - 1];
     deleteEvent(target.id);
     voiceResult.textContent = "已删除：" + target.date + " " + target.title;
+    speak("已删除，" + target.title);
     renderCalendar();
     selectedDate = parsed.date;
     renderCalendar();
@@ -363,6 +398,7 @@ function executeDelete(parsed) {
     voiceResult.textContent = "";
     voiceError.textContent =
       parsed.date + " 未找到包含「" + parsed.keywords + "」的事件";
+    speak("未找到匹配的事件");
     renderCalendar();
   }
 }
@@ -402,10 +438,12 @@ async function parseAndExecute(text) {
       default:
         voiceResult.textContent = "";
         voiceError.textContent = "无法理解，请重新说一遍";
+        speak("没听清，请重新说一遍");
     }
   } catch (e) {
     console.error("Parse error:", e);
     voiceResult.textContent = "";
     voiceError.textContent = "解析失败，请重新说一遍";
+    speak("没听清，请重新说一遍");
   }
 }
