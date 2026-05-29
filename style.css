@@ -201,3 +201,77 @@ body {
   font-size: 14px;
   padding: 20px 0;
 }
+
+/* ---------- 语音区域 ---------- */
+.voice-area {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.voice-result {
+  min-height: 24px;
+  font-size: 15px;
+  color: #ccc;
+  text-align: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #16213e;
+  width: 100%;
+  word-break: break-word;
+  transition: all 0.2s;
+}
+
+.voice-result:empty {
+  display: none;
+}
+
+.voice-result.listening {
+  color: #e94560;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.voice-error {
+  font-size: 13px;
+  color: #e94560;
+  text-align: center;
+  min-height: 20px;
+}
+
+.voice-error:empty {
+  display: none;
+}
+
+.mic-btn {
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  background: #e94560;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(233, 69, 96, 0.3);
+}
+
+.mic-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+}
+
+.mic-btn:active,
+.mic-btn.recording {
+  background: #c73a52;
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(233, 69, 96, 0.5);
+}
