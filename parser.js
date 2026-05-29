@@ -243,6 +243,43 @@ function fmtSpokenTime(timeStr) {
   return h + "点" + m + "分";
 }
 
+// ---------- 页面加载问候 ----------
+
+function getBlessing(title) {
+  if (/吃饭|聚餐|美食|饭/.test(title)) return "好好享用美食哦";
+  if (/会议|开会|会/.test(title)) return "会议顺利哦";
+  if (/体检|医院/.test(title)) return "身体健康最重要";
+  if (/上课|学习|课/.test(title)) return "学习加油哦";
+  if (/运动|跑步|健身/.test(title)) return "运动快乐哦";
+  return "祝您一切顺利";
+}
+
+function greetToday() {
+  const now = new Date();
+  const hour = now.getHours();
+  let greeting;
+  if (hour >= 6 && hour < 11) greeting = "早上好呀";
+  else if (hour >= 11 && hour < 13) greeting = "中午好呀";
+  else if (hour >= 13 && hour < 18) greeting = "下午好呀";
+  else greeting = "晚上好哦";
+
+  const todayStr = fmtDateISO(now.getFullYear(), now.getMonth(), now.getDate());
+  const events = sortEvents(getEventsByDate(todayStr));
+
+  if (events.length === 0) {
+    speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + "，暂无安排，祝您生活愉快！");
+  } else {
+    const eventList = events
+      .map((e) => (e.time ? fmtSpokenTime(e.time) + "，" : "") + e.title)
+      .join("、");
+    const blessing = getBlessing(events[events.length - 1].title);
+    speak(
+      greeting + "，今天是" + fmtSpokenDate(todayStr) + "，您有" +
+      events.length + "个事件：" + eventList + "，" + blessing
+    );
+  }
+}
+
 // ---------- 事件排序与格式化 ----------
 
 function sortEvents(events) {

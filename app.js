@@ -13,3 +13,11 @@ document.addEventListener("click", function (e) {
   if (vr) vr.textContent = "";
   if (ve) ve.textContent = "";
 });
+
+// 页面加载后自动播报今日事件
+var _greeted = false;
+document.addEventListener("DOMContentLoaded", function () {
+  if (_greeted) return;
+  _greeted = true;
+  setTimeout(greetToday, 600);
+});

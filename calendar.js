@@ -23,6 +23,7 @@ function initCalendar() {
   const today = new Date();
   currentYear = today.getFullYear();
   currentMonth = today.getMonth();
+  selectedDate = fmtDate(currentYear, currentMonth, today.getDate());
   renderCalendar();
 
   document.getElementById("prevMonth").addEventListener("click", () => {
