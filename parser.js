@@ -145,6 +145,13 @@ function buildSystemPrompt() {
   示例："后天开会" → add
   示例："周五聚餐" → add
 
+规则4 - 如果用户说的内容无意义、无法识别意图、纯语气词/拟声词/单个标点 → action = "unknown"
+  示例：
+    "。" → unknown
+    "嗯" → unknown
+    "啊" → unknown
+    "哈哈哈哈" → unknown
+
 === 第二步：提取信息 ===
 
 当前日期：${ctx.today}（${ctx.todayWeekday}）
@@ -172,6 +179,7 @@ X点半 → XX:30        （下午三点半=15:30）
 
 === JSON 格式 ===
 add: {"action":"add","date":"日期","time":"时间","title":"标题"}
+unknown: {"action":"unknown"}
 query: 查单天 → {"action":"query","date":"日期"}
        查月份 → {"action":"query","date":"月份"}（格式："${ctx.thisMonth}"，即YYYY-MM）
        查下周 → {"action":"query","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}"}
@@ -408,6 +416,25 @@ function executeDelete(parsed) {
 async function parseAndExecute(text) {
   if (!text || !text.trim()) return;
 
+  const trimmed = text.trim();
+
+  // 过滤不足3个字的输入
+  if (trimmed.length < 3) {
+    voiceResult.textContent = "";
+    voiceError.textContent = "";
+    speak("没听清，请重新说一遍");
+    return;
+  }
+
+  // 过滤纯标点符号的输入
+  const noPunct = trimmed.replace(/[，。！？、\.\,\!\?\s\；：；""''《》【】（）\(\)\[\]～~…—\-_\^]/g, "");
+  if (noPunct.length === 0) {
+    voiceResult.textContent = "";
+    voiceError.textContent = "";
+    speak("没听清，请重新说一遍");
+    return;
+  }
+
   voiceResult.textContent = "正在理解...";
   voiceError.textContent = "";
 
@@ -434,6 +461,11 @@ async function parseAndExecute(text) {
         break;
       case "delete":
         executeDelete(parsed);
+        break;
+      case "unknown":
+        voiceResult.textContent = "";
+        voiceError.textContent = "";
+        speak("没听清，请重新说一遍");
         break;
       default:
         voiceResult.textContent = "";

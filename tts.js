@@ -91,15 +91,48 @@ async function ttsGetAuthUrl() {
   return url.toString();
 }
 
-// ---------- 音频播放 ----------
+// ---------- 音频解码 ----------
 
-function ttsPlayAudio(base64Audio) {
-  // 将 base64 转为 Blob 并通过 Audio 元素播放
-  const binary = atob(base64Audio);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+function safeAtob(b64) {
+  // 去除空白字符
+  let cleaned = b64.replace(/\s/g, "");
+  // 处理 URL-safe base64（- → +, _ → /）
+  cleaned = cleaned.replace(/-/g, "+").replace(/_/g, "/");
+  // 补齐 padding（atob 要求长度是4的倍数）
+  while (cleaned.length % 4 !== 0) {
+    cleaned += "=";
   }
+  return atob(cleaned);
+}
+
+function decodeAudioChunks(chunks) {
+  // 每个 chunk 是独立 base64 编码的，需要分别解码后拼接二进制数据
+  const parts = [];
+  for (const chunk of chunks) {
+    try {
+      parts.push(safeAtob(chunk));
+    } catch (e) {
+      console.warn("TTS: skipping chunk, decode failed:", e.message);
+    }
+  }
+  if (parts.length === 0) return null;
+
+  const totalLen = parts.reduce((s, p) => s + p.length, 0);
+  const combined = new Uint8Array(totalLen);
+  let offset = 0;
+  for (const p of parts) {
+    for (let i = 0; i < p.length; i++) {
+      combined[offset + i] = p.charCodeAt(i);
+    }
+    offset += p.length;
+  }
+  return combined;
+}
+
+function ttsPlayAudio(audioChunks) {
+  const bytes = decodeAudioChunks(audioChunks);
+  if (!bytes) return;
+
   const blob = new Blob([bytes.buffer], { type: "audio/mp3" });
   const url = URL.createObjectURL(blob);
 
@@ -132,6 +165,7 @@ async function speak(text) {
         common: { app_id: TTS_APP_ID },
         business: {
           aue: "lame",
+          sfl: 1,
           vcn: speaker.vcn,
           speed: 50,
           volume: 50,
@@ -162,8 +196,7 @@ async function speak(text) {
 
         // status=2 表示合成结束
         if (msg.data && msg.data.status === 2 && audioChunks.length > 0) {
-          const fullAudio = audioChunks.join("");
-          ttsPlayAudio(fullAudio);
+          ttsPlayAudio(audioChunks);
           ws.close();
         }
       } catch (e) {
