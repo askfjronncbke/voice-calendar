@@ -1,7 +1,105 @@
 /* ============================================ */
-/* 样式文件                                       */
-/* - 月历视图样式                                  */
-/* - 语音按钮样式                                  */
-/* - 事件列表弹窗样式                               */
-/* - 移动端适配                                    */
+/* 样式 — 语音日历                                 */
+/* - 月历视图                                      */
+/* - 深色主题                                      */
 /* ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+}
+
+/* ---------- 月份导航 ---------- */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.month-year {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+  min-width: 160px;
+  text-align: center;
+}
+
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #16213e;
+  color: #e0e0e0;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-btn:hover {
+  background: #0f3460;
+}
+
+/* ---------- 星期表头 ---------- */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2a2a4a;
+}
+
+/* ---------- 日期格子 ---------- */
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #ccc;
+}
+
+.day-cell:hover {
+  background: #16213e;
+}
+
+.day-cell.other-month {
+  color: #444;
+}
+
+.day-cell.today {
+  background: #e94560;
+  color: #fff;
+  font-weight: 600;
+}
