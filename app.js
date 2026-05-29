@@ -16,10 +16,16 @@ document.addEventListener("click", function (e) {
   if (ve) ve.textContent = "";
 });
 
-// 冲突提示按钮事件
+// 冲突提示按钮事件 + 页面加载后自动播报今日事件
+var _greeted = false;
 document.addEventListener("DOMContentLoaded", function () {
   var confirmBtn = document.getElementById("conflictConfirm");
   var cancelBtn = document.getElementById("conflictCancel");
   if (confirmBtn) confirmBtn.addEventListener("click", confirmAdd);
   if (cancelBtn) cancelBtn.addEventListener("click", cancelAdd);
+
+  if (!_greeted) {
+    _greeted = true;
+    setTimeout(greetToday, 600);
+  }
 });
