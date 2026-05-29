@@ -145,6 +145,13 @@ function buildSystemPrompt() {
   示例："后天开会" → add
   示例："周五聚餐" → add
 
+规则4 - 如果用户说的内容无意义、无法识别意图、纯语气词/拟声词/单个标点 → action = "unknown"
+  示例：
+    "。" → unknown
+    "嗯" → unknown
+    "啊" → unknown
+    "哈哈哈哈" → unknown
+
 === 第二步：提取信息 ===
 
 当前日期：${ctx.today}（${ctx.todayWeekday}）
@@ -172,6 +179,7 @@ X点半 → XX:30        （下午三点半=15:30）
 
 === JSON 格式 ===
 add: {"action":"add","date":"日期","time":"时间","title":"标题"}
+unknown: {"action":"unknown"}
 query: 查单天 → {"action":"query","date":"日期"}
        查月份 → {"action":"query","date":"月份"}（格式："${ctx.thisMonth}"，即YYYY-MM）
        查下周 → {"action":"query","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}"}
@@ -299,15 +307,66 @@ function formatEventList(events) {
 
 // ---------- 执行操作 ----------
 
+let pendingAdd = null; // 待确认的添加数据
+
 function executeAdd(parsed) {
+  // 检查同日期同时段的冲突
+  if (parsed.time) {
+    const conflicts = getEventsByDate(parsed.date).filter((e) => e.time === parsed.time);
+    if (conflicts.length > 0) {
+      const cf = conflicts[0];
+      pendingAdd = parsed;
+      voiceResult.textContent = "";
+      voiceError.textContent = "";
+      showConflictPrompt(parsed.date, parsed.time, cf.title);
+      speak("该时间已有安排，" + cf.title + "，是否继续添加？");
+      return;
+    }
+  }
+  doAddEvent(parsed);
+}
+
+function doAddEvent(parsed) {
   const ev = addEvent(parsed.date, parsed.time || "", parsed.title);
   voiceResult.textContent = "已添加：" + ev.title;
   voiceError.textContent = "";
+  hideConflictPrompt();
   speak("已添加，" + fmtSpokenDate(ev.date) + (ev.time ? "，" + fmtSpokenTime(ev.time) : "") + "，" + ev.title);
   renderCalendar();
   selectedDate = parsed.date;
   renderCalendar();
   showEventPanel(parsed.date);
+  pendingAdd = null;
+}
+
+function confirmAdd() {
+  if (pendingAdd) {
+    doAddEvent(pendingAdd);
+  }
+}
+
+function cancelAdd() {
+  if (pendingAdd) {
+    voiceResult.textContent = "已取消添加";
+    hideConflictPrompt();
+    pendingAdd = null;
+  }
+}
+
+function showConflictPrompt(date, time, conflictTitle) {
+  const prompt = document.getElementById("conflictPrompt");
+  const msg = document.getElementById("conflictMsg");
+  if (prompt && msg) {
+    msg.textContent = fmtSpokenDate(date) + " " + fmtSpokenTime(time) + " 已有安排：" + conflictTitle + "，是否继续添加？";
+    prompt.classList.add("show");
+  }
+}
+
+function hideConflictPrompt() {
+  const prompt = document.getElementById("conflictPrompt");
+  if (prompt) {
+    prompt.classList.remove("show");
+  }
 }
 
 function executeQuery(parsed) {
@@ -445,6 +504,25 @@ function executeDelete(parsed) {
 async function parseAndExecute(text) {
   if (!text || !text.trim()) return;
 
+  const trimmed = text.trim();
+
+  // 过滤不足3个字的输入
+  if (trimmed.length < 3) {
+    voiceResult.textContent = "";
+    voiceError.textContent = "";
+    speak("没听清，请重新说一遍");
+    return;
+  }
+
+  // 过滤纯标点符号的输入
+  const noPunct = trimmed.replace(/[，。！？、\.\,\!\?\s\；：；""''《》【】（）\(\)\[\]～~…—\-_\^]/g, "");
+  if (noPunct.length === 0) {
+    voiceResult.textContent = "";
+    voiceError.textContent = "";
+    speak("没听清，请重新说一遍");
+    return;
+  }
+
   voiceResult.textContent = "正在理解...";
   voiceError.textContent = "";
 
@@ -471,6 +549,11 @@ async function parseAndExecute(text) {
         break;
       case "delete":
         executeDelete(parsed);
+        break;
+      case "unknown":
+        voiceResult.textContent = "";
+        voiceError.textContent = "";
+        speak("没听清，请重新说一遍");
         break;
       default:
         voiceResult.textContent = "";
