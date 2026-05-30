@@ -46,8 +46,10 @@ function loadDiary(dateStr) {
   const parts = dateStr.split("-");
   diaryYear = parseInt(parts[0]);
   diaryMonth = parseInt(parts[1]) - 1;
+  const day = parseInt(parts[2]);
   document.getElementById("diaryYearBtn").textContent = diaryYear + "年";
   document.getElementById("diaryMonthBtn").textContent = (diaryMonth + 1) + "月";
+  document.getElementById("diaryTitle").textContent = diaryYear + "年" + (diaryMonth + 1) + "月" + day + "日";
   document.getElementById("diaryTextarea").value = getDiary(dateStr);
 }
 
@@ -110,6 +112,7 @@ function applyDiaryDate() {
     day = today.getDate();
   }
   diaryDate = fmtDateISO(diaryYear, diaryMonth, day);
+  document.getElementById("diaryTitle").textContent = diaryYear + "年" + (diaryMonth + 1) + "月" + day + "日";
   document.getElementById("diaryTextarea").value = getDiary(diaryDate);
   document.getElementById("diaryYearBtn").textContent = diaryYear + "年";
   document.getElementById("diaryMonthBtn").textContent = (diaryMonth + 1) + "月";

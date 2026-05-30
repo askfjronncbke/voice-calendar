@@ -866,6 +866,24 @@ body::after {
   pointer-events: none;
 }
 
+.diary-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #eee;
+  padding-bottom: 10px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  user-select: none;
+}
+
+.diary-title-line {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
 .diary-textarea {
   width: 100%;
   flex: 1;
