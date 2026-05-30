@@ -670,7 +670,7 @@ body::after {
   align-items: center;
   justify-content: center;
   line-height: 1;
-  z-index: 2;
+  z-index: 3;
   transition: all 0.2s;
 }
 
@@ -687,6 +687,8 @@ body::after {
   text-align: center;
   margin-bottom: 16px;
   line-height: 1.5;
+  position: relative;
+  z-index: 2;
 }
 
 /* 事件列表 */
@@ -694,6 +696,8 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  z-index: 2;
 }
 
 .cloud-event-item {
@@ -1047,6 +1051,7 @@ body::after {
   color: #ddd;
   line-height: 1.6;
   margin-bottom: 28px;
+  text-align: center;
 }
 
 .modal-btns {
@@ -1114,7 +1119,6 @@ body::after {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
-  overflow: hidden;
 }
 
 .settings-row {
@@ -1187,7 +1191,7 @@ body::after {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   min-width: 100px;
-  z-index: 50;
+  z-index: 250;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
@@ -1570,6 +1574,18 @@ body.large-font .month-year {
 
 body.large-font .day-cell {
   font-size: 24px;
+}
+
+body.large-font .day-cell .dot {
+  bottom: 3px;
+  width: 7px;
+  height: 7px;
+}
+
+body.large-font .day-cell .pencil {
+  font-size: 12px;
+  bottom: 1px;
+  right: 3px;
 }
 
 body.large-font .diary-date-btn {
