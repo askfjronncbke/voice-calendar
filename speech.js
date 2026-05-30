@@ -294,66 +294,67 @@ function cleanupRecording() {
 
 let _dragTimer = null;
 let _isDragging = false;
-let _dragStartX = 0;
-let _dragStartY = 0;
-let _btnStartLeft = 0;
-let _btnStartTop = 0;
+let _hasMoved = false;
+let _offsetX = 0;
+let _offsetY = 0;
+
+function onPointerDown(e) {
+  var rect = micBtn.getBoundingClientRect();
+  _offsetX = e.clientX - rect.left;
+  _offsetY = e.clientY - rect.top;
+
+  _dragTimer = setTimeout(function () {
+    _isDragging = true;
+    _hasMoved = false;
+    micBtn.classList.add("dragging");
+    micBtn.style.position = "fixed";
+    micBtn.style.left = (e.clientX - _offsetX) + "px";
+    micBtn.style.top = (e.clientY - _offsetY) + "px";
+  }, 500);
+}
+
+function onPointerMove(e) {
+  if (!_isDragging) return;
+  _hasMoved = true;
+  micBtn.style.left = (e.clientX - _offsetX) + "px";
+  micBtn.style.top = (e.clientY - _offsetY) + "px";
+}
+
+function onPointerUp(e) {
+  clearTimeout(_dragTimer);
+  if (_isDragging) {
+    micBtn.classList.remove("dragging");
+    if (_hasMoved) {
+      localStorage.setItem("mic_btn_position", JSON.stringify({
+        left: parseInt(micBtn.style.left),
+        top: parseInt(micBtn.style.top)
+      }));
+    }
+    _isDragging = false;
+  }
+}
+
+function onPointerCancel() {
+  clearTimeout(_dragTimer);
+  if (_isDragging) {
+    micBtn.classList.remove("dragging");
+    _isDragging = false;
+  }
+}
 
 function initSpeech() {
   micBtn = document.getElementById("micBtn");
   voiceResult = document.getElementById("voiceResult");
   voiceError = document.getElementById("voiceError");
 
-  // 长按拖动
-  micBtn.addEventListener("pointerdown", function (e) {
-    micBtn.setPointerCapture(e.pointerId);
-    _dragStartX = e.clientX;
-    _dragStartY = e.clientY;
-    var rect = micBtn.getBoundingClientRect();
-    _btnStartLeft = rect.left;
-    _btnStartTop = rect.top;
-
-    _dragTimer = setTimeout(function () {
-      _isDragging = true;
-      micBtn.classList.add("dragging");
-      if (!micBtn.style.position || micBtn.style.position !== "fixed") {
-        micBtn.style.position = "fixed";
-        micBtn.style.left = _btnStartLeft + "px";
-        micBtn.style.top = _btnStartTop + "px";
-      }
-    }, 500);
-  });
-
-  micBtn.addEventListener("pointermove", function (e) {
-    if (!_isDragging) return;
-    e.preventDefault();
-    micBtn.style.left = (_btnStartLeft + e.clientX - _dragStartX) + "px";
-    micBtn.style.top = (_btnStartTop + e.clientY - _dragStartY) + "px";
-  });
-
-  micBtn.addEventListener("pointerup", function (e) {
-    clearTimeout(_dragTimer);
-    if (_isDragging) {
-      micBtn.classList.remove("dragging");
-      localStorage.setItem("mic_btn_position", JSON.stringify({
-        left: parseInt(micBtn.style.left),
-        top: parseInt(micBtn.style.top)
-      }));
-      _isDragging = false;
-    }
-  });
-
-  micBtn.addEventListener("pointercancel", function () {
-    clearTimeout(_dragTimer);
-    if (_isDragging) {
-      micBtn.classList.remove("dragging");
-      _isDragging = false;
-    }
-  });
+  micBtn.addEventListener("pointerdown", onPointerDown);
+  document.addEventListener("pointermove", onPointerMove);
+  document.addEventListener("pointerup", onPointerUp);
+  document.addEventListener("pointercancel", onPointerCancel);
 
   // 短按（无拖动）触发录音
   micBtn.addEventListener("click", function () {
-    if (_isDragging) return;
+    if (_hasMoved) return;
     if (isRecording) {
       stopRecording();
     } else {
