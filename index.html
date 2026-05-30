@@ -7,6 +7,13 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- 云朵今日播报 -->
+  <div class="cloud-greeting" id="cloudGreeting">
+    <button class="cloud-close" id="cloudClose">&times;</button>
+    <div class="cloud-text" id="cloudText"></div>
+    <div class="cloud-events" id="cloudEvents"></div>
+  </div>
+
   <!-- 侧边栏遮罩 -->
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -76,6 +83,7 @@
   <script src="parser.js"></script>
   <script src="speech.js"></script>
   <script src="sidebar.js"></script>
+  <script src="cloud.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

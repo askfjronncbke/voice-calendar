@@ -9,6 +9,7 @@ document.addEventListener("click", function (e) {
   if (e.target.closest("#micBtn")) return;
   if (e.target.closest("#conflictConfirm")) return;
   if (e.target.closest("#conflictCancel")) return;
+  if (e.target.closest("#cloudClose")) return;
 
   var vr = document.getElementById("voiceResult");
   var ve = document.getElementById("voiceError");
@@ -26,6 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!_greeted) {
     _greeted = true;
-    setTimeout(greetToday, 600);
+    setTimeout(showCloudGreeting, 600);
   }
 });

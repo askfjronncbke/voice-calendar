@@ -572,6 +572,164 @@ body::after {
   box-shadow: 0 6px 24px rgba(233,69,96,0.45);
 }
 
+/* ========== 云朵今日播报 ========== */
+
+@keyframes cloudFloatIn {
+  0% {
+    transform: translate(-50%, -80px);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes cloudFloatOut {
+  0% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -80px);
+    opacity: 0;
+  }
+}
+
+.cloud-greeting {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -80px);
+  width: 330px;
+  max-width: 90vw;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 60px;
+  padding: 38px 28px 24px;
+  z-index: 25;
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+  box-shadow:
+    0 0 30px rgba(180, 200, 255, 0.12),
+    0 8px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cloud-greeting.show {
+  transform: translate(-50%, 20px);
+  opacity: 1;
+  pointer-events: auto;
+  animation: cloudFloatIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cloud-greeting.hide {
+  pointer-events: none;
+  animation: cloudFloatOut 0.4s ease-in forwards;
+}
+
+/* 云朵突起 */
+.cloud-greeting::before,
+.cloud-greeting::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+  border: inherit;
+  backdrop-filter: inherit;
+  -webkit-backdrop-filter: inherit;
+}
+
+.cloud-greeting::before {
+  width: 90px;
+  height: 90px;
+  top: -30px;
+  left: 40px;
+}
+
+.cloud-greeting::after {
+  width: 70px;
+  height: 70px;
+  top: -18px;
+  right: 45px;
+}
+
+/* 额外云朵突起（内层伪元素） */
+.cloud-text::before {
+  content: "";
+  position: absolute;
+  width: 55px;
+  height: 55px;
+  background: inherit;
+  border-radius: 50%;
+  backdrop-filter: inherit;
+  -webkit-backdrop-filter: inherit;
+  border: inherit;
+  top: -17px;
+  right: 95px;
+}
+
+/* 关闭按钮 */
+.cloud-close {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #999;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 2;
+  transition: all 0.2s;
+}
+
+.cloud-close:hover {
+  background: rgba(233, 69, 96, 0.35);
+  color: #e94560;
+}
+
+/* 问候文字 */
+.cloud-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* 事件列表 */
+.cloud-events {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cloud-event-item {
+  font-size: 15px;
+  color: #ddd;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.cloud-event-empty {
+  font-size: 15px;
+  color: #888;
+  text-align: center;
+  padding: 8px 0;
+}
+
 .mic-btn:active,
 .mic-btn.recording {
   background: #c73a52;
