@@ -1,7 +1,5 @@
 /* ============================================ */
-/* 样式 — 语音日历                                 */
-/* - 月历视图                                      */
-/* - 深色主题                                      */
+/* 样式 — 语音日历（星空主题）                      */
 /* ============================================ */
 
 * {
@@ -13,18 +11,84 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Microsoft YaHei", sans-serif;
-  background: #1a1a2e;
+  background: #0a0a1e;
   color: #e0e0e0;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ---------- 星空背景 ---------- */
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(0.8px 0.8px at 10% 8%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(0.6px 0.6px at 22% 15%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.7px 0.7px at 35% 5%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 48% 12%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.9px 0.9px at 55% 20%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(0.6px 0.6px at 68% 8%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.8px 0.8px at 75% 18%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 85% 6%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.7px 0.7px at 92% 14%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 28% 30%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.8px 0.8px at 42% 22%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.6px 0.6px at 58% 28%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.9px 0.9px at 70% 24%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 82% 30%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.7px 0.7px at 8% 38%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.6px 0.6px at 20% 42%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.8px 0.8px at 33% 36%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(0.5px 0.5px at 45% 44%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.7px 0.7px at 60% 38%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.9px 0.9px at 78% 42%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 90% 36%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.8px 0.8px at 5% 52%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.6px 0.6px at 25% 50%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.7px 0.7px at 40% 54%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.5px 0.5px at 52% 48%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.8px 0.8px at 65% 56%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.6px 0.6px at 80% 50%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.9px 0.9px at 95% 54%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(0.5px 0.5px at 12% 64%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.7px 0.7px at 30% 62%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.6px 0.6px at 50% 66%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.8px 0.8px at 62% 60%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 75% 68%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.7px 0.7px at 88% 64%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.8px 0.8px at 18% 75%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.6px 0.6px at 35% 78%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.7px 0.7px at 55% 72%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 72% 76%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.9px 0.9px at 85% 80%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.6px 0.6px at 8% 85%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.8px 0.8px at 28% 88%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(0.5px 0.5px at 48% 84%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.7px 0.7px at 65% 88%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.6px 0.6px at 80% 86%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.8px 0.8px at 92% 92%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.7px 0.7px at 15% 92%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(0.6px 0.6px at 40% 94%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(0.5px 0.5px at 58% 90%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(0.8px 0.8px at 75% 94%, rgba(255,255,255,0.5), transparent);
 }
 
 .app {
   width: 100%;
-  max-width: 420px;
-  padding: 24px;
+  max-width: 440px;
+  padding: 28px 24px;
+  position: relative;
+  z-index: 1;
 }
 
 /* ---------- 月份导航 ---------- */
@@ -32,31 +96,31 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .month-year {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   color: #ffffff;
-  min-width: 160px;
+  min-width: 180px;
   text-align: center;
 }
 
 .nav-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
-  background: #16213e;
-  color: #e0e0e0;
-  font-size: 18px;
+  background: rgba(255,255,255,0.06);
+  color: #ccc;
+  font-size: 20px;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .nav-btn:hover {
-  background: #0f3460;
+  background: rgba(255,255,255,0.12);
 }
 
 /* ---------- 星期表头 ---------- */
@@ -64,18 +128,18 @@ body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  font-size: 13px;
-  color: #888;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #2a2a4a;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 /* ---------- 日期格子 ---------- */
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 6px;
 }
 
 .day-cell {
@@ -83,53 +147,63 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 16px;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.2s;
-  color: #ccc;
+  transition: background 0.2s, box-shadow 0.3s;
+  color: #bbb;
   position: relative;
 }
 
 .day-cell:hover {
-  background: #16213e;
+  background: rgba(255,255,255,0.06);
 }
 
 .day-cell.other-month {
-  color: #444;
+  color: #3a3a5a;
 }
 
+/* ---------- 月亮：今日日期 ---------- */
 .day-cell.today {
-  background: #e94560;
-  color: #fff;
-  font-weight: 600;
+  background: radial-gradient(circle at 45% 40%, #ffe8a0, #e6b800);
+  color: #1a1a2e;
+  font-weight: 700;
+  box-shadow:
+    0 0 12px rgba(255,200,50,0.5),
+    0 0 30px rgba(255,200,50,0.25),
+    0 0 50px rgba(255,180,30,0.12);
 }
 
 .day-cell.selected {
-  background: #0f3460;
+  background: rgba(255,255,255,0.1);
   color: #fff;
 }
 
 .day-cell.today.selected {
-  background: #e94560;
-  box-shadow: 0 0 0 2px #0f3460;
+  background: radial-gradient(circle at 45% 40%, #ffe8a0, #e6b800);
+  color: #1a1a2e;
+  box-shadow:
+    0 0 12px rgba(255,200,50,0.5),
+    0 0 30px rgba(255,200,50,0.25),
+    0 0 50px rgba(255,180,30,0.12),
+    0 0 0 3px rgba(255,255,255,0.2);
 }
 
-/* ---------- 事件小圆点 ---------- */
+/* ---------- 手绘星星框：有事件的日期 ---------- */
 .day-cell .dot {
   position: absolute;
-  bottom: 4px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #e94560;
+  inset: -2px;
+  pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 34 34' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17 3 L20 12 L30 13 L22 20 L24 29 L17 24 L10 29 L12 20 L4 13 L14 12 Z' fill='none' stroke='rgba(255,255,200,0.45)' stroke-width='1' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M17 4 L19.5 12 L28.5 13 L21.5 19.5 L23 28 L17 23.5 L11 28 L12.5 19.5 L5.5 13 L14.5 12 Z' fill='none' stroke='rgba(255,255,220,0.25)' stroke-width='0.8' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E")
+    center/contain no-repeat;
 }
 
 /* ---------- 事件列表面板 ---------- */
 .event-panel {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #2a2a4a;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
   display: none;
 }
 
@@ -138,87 +212,87 @@ body {
 }
 
 .event-panel-header {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .event-panel-date {
-  font-size: 15px;
-  color: #aaa;
+  font-size: 16px;
+  color: #999;
 }
 
 .event-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .event-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #16213e;
-  border-radius: 10px;
-  padding: 12px 14px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  padding: 14px 16px;
 }
 
 .event-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .event-title {
-  font-size: 15px;
+  font-size: 16px;
   color: #fff;
 }
 
 .event-time {
-  font-size: 13px;
+  font-size: 14px;
   color: #888;
 }
 
 .event-delete {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 50%;
   background: transparent;
   color: #888;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   transition: all 0.2s;
   line-height: 1;
 }
 
 .event-delete:hover {
-  background: #e94560;
-  color: #fff;
+  background: rgba(233,69,96,0.3);
+  color: #e94560;
 }
 
 .event-empty {
   text-align: center;
-  color: #666;
-  font-size: 14px;
-  padding: 20px 0;
+  color: #555;
+  font-size: 15px;
+  padding: 24px 0;
 }
 
 /* ---------- 语音区域 ---------- */
 .voice-area {
-  margin-top: 20px;
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .voice-result {
-  min-height: 24px;
-  font-size: 15px;
+  min-height: 28px;
+  font-size: 16px;
   color: #ccc;
   text-align: center;
-  padding: 8px 16px;
-  border-radius: 8px;
-  background: #16213e;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
   width: 100%;
   word-break: break-word;
   transition: all 0.2s;
@@ -239,10 +313,10 @@ body {
 }
 
 .voice-error {
-  font-size: 13px;
+  font-size: 14px;
   color: #e94560;
   text-align: center;
-  min-height: 20px;
+  min-height: 22px;
 }
 
 .voice-error:empty {
@@ -254,12 +328,12 @@ body {
   display: none;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  background: #2a1a20;
-  border: 1px solid #e94560;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(233,69,96,0.1);
+  border: 1px solid rgba(233,69,96,0.4);
 }
 
 .conflict-prompt.show {
@@ -267,7 +341,7 @@ body {
 }
 
 .conflict-msg {
-  font-size: 14px;
+  font-size: 15px;
   color: #e94560;
   text-align: center;
   line-height: 1.5;
@@ -275,15 +349,15 @@ body {
 
 .conflict-btns {
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
 .conflict-confirm,
 .conflict-cancel {
-  height: 34px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 13px;
+  height: 38px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
@@ -299,28 +373,28 @@ body {
 }
 
 .conflict-cancel {
-  background: #333;
+  background: rgba(255,255,255,0.1);
   color: #ccc;
 }
 
 .conflict-cancel:hover {
-  background: #444;
+  background: rgba(255,255,255,0.15);
 }
 
 .voice-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .voice-toggle {
-  height: 36px;
-  padding: 0 14px;
-  border: 1px solid #444;
-  border-radius: 18px;
-  background: #16213e;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  background: rgba(255,255,255,0.04);
   color: #ccc;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
@@ -331,9 +405,10 @@ body {
   color: #e94560;
 }
 
+/* ---------- 麦克风按钮 + 波纹动画 ---------- */
 .mic-btn {
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
   border: none;
   border-radius: 50%;
   background: #e94560;
@@ -343,17 +418,44 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(233, 69, 96, 0.3);
+  box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+  position: relative;
+}
+
+.mic-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(233,69,96,0.4);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mic-btn:active::after,
+.mic-btn.recording::after {
+  animation: micRipple 0.8s ease-out;
+}
+
+@keyframes micRipple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
 }
 
 .mic-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+  transform: scale(1.06);
+  box-shadow: 0 6px 24px rgba(233,69,96,0.45);
 }
 
 .mic-btn:active,
 .mic-btn.recording {
   background: #c73a52;
   transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(233, 69, 96, 0.5);
+  box-shadow: 0 6px 28px rgba(233,69,96,0.5);
 }
