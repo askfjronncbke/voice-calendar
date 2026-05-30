@@ -21,6 +21,15 @@ let accumulatedText = "";
 let micBtn = null;
 let voiceResult = null;
 let voiceError = null;
+let speechCallback = null;
+
+function setSpeechCallback(fn) { speechCallback = fn; }
+
+function setSpeechElements(mic, result, error) {
+  micBtn = mic;
+  voiceResult = result;
+  voiceError = error;
+}
 
 // ---------- 工具函数 ----------
 
@@ -170,7 +179,12 @@ function handleMessage(event) {
   if (result.ls && accumulatedText.replace(/[。，！？、\.\,\!\?\s]/g, "").length > 0) {
     console.log("Final text for parsing:", JSON.stringify(accumulatedText));
     voiceError.textContent = "";
-    parseAndExecute(accumulatedText.trim());
+    if (speechCallback) {
+      speechCallback(accumulatedText.trim());
+      speechCallback = null;
+    } else {
+      parseAndExecute(accumulatedText.trim());
+    }
   }
 }
 
@@ -294,42 +308,52 @@ function cleanupRecording() {
 
 let _dragTimer = null;
 let _isDragging = false;
-let _dragStartX = 0;
-let _dragStartY = 0;
-let _btnStartLeft = 0;
-let _btnStartTop = 0;
+let _offsetX = 0;
+let _offsetY = 0;
+
+function activeVoiceElements() {
+  const diaryPage = document.getElementById("page-diary");
+  if (diaryPage && diaryPage.classList.contains("active")) {
+    return {
+      result: document.getElementById("diaryVoiceResult"),
+      error: document.getElementById("diaryVoiceError"),
+    };
+  }
+  return {
+    result: document.getElementById("voiceResult"),
+    error: document.getElementById("voiceError"),
+  };
+}
 
 function initSpeech() {
   micBtn = document.getElementById("micBtn");
-  voiceResult = document.getElementById("voiceResult");
-  voiceError = document.getElementById("voiceError");
+  var els = activeVoiceElements();
+  voiceResult = els.result;
+  voiceError = els.error;
 
-  // 长按拖动
+  // 长按拖动：中心偏移量 + 同步 setPointerCapture
   micBtn.addEventListener("pointerdown", function (e) {
-    _dragStartX = e.clientX;
-    _dragStartY = e.clientY;
+    micBtn.setPointerCapture(e.pointerId);
     var rect = micBtn.getBoundingClientRect();
-    _btnStartLeft = rect.left;
-    _btnStartTop = rect.top;
+    _offsetX = e.clientX - (rect.left + rect.width / 2);
+    _offsetY = e.clientY - (rect.top + rect.height / 2);
 
     _dragTimer = setTimeout(function () {
       _isDragging = true;
       micBtn.classList.add("dragging");
-      micBtn.setPointerCapture(e.pointerId);
       if (!micBtn.style.position || micBtn.style.position !== "fixed") {
         micBtn.style.position = "fixed";
-        micBtn.style.left = _btnStartLeft + "px";
-        micBtn.style.top = _btnStartTop + "px";
+        micBtn.style.left = rect.left + "px";
+        micBtn.style.top = rect.top + "px";
       }
     }, 500);
   });
 
   micBtn.addEventListener("pointermove", function (e) {
     if (!_isDragging) return;
-    var dx = e.clientX - _dragStartX;
-    var dy = e.clientY - _dragStartY;
-    micBtn.style.left = (_btnStartLeft + dx) + "px";
-    micBtn.style.top = (_btnStartTop + dy) + "px";
+    var r = micBtn.getBoundingClientRect();
+    micBtn.style.left = (e.clientX - _offsetX - r.width / 2) + "px";
+    micBtn.style.top = (e.clientY - _offsetY - r.height / 2) + "px";
   });
 
   micBtn.addEventListener("pointerup", function () {
@@ -344,12 +368,31 @@ function initSpeech() {
     }
   });
 
-  // 短按（无拖动）触发录音
   micBtn.addEventListener("click", function () {
     if (_isDragging) return;
+    // 根据当前活跃页面切换语音目标
+    var els = activeVoiceElements();
+    voiceResult = els.result;
+    voiceError = els.error;
+
     if (isRecording) {
       stopRecording();
     } else {
+      // 日记页面：设置追加回调
+      var diaryPage = document.getElementById("page-diary");
+      if (diaryPage && diaryPage.classList.contains("active")) {
+        setSpeechCallback(function (text) {
+          var textarea = document.getElementById("diaryTextarea");
+          if (textarea) {
+            var cur = textarea.value;
+            var sep = cur && !cur.endsWith("\n") ? "\n" : "";
+            textarea.value = cur + sep + text + "\n";
+            saveDiary(diaryDate, textarea.value);
+          }
+        });
+      } else {
+        setSpeechCallback(null);
+      }
       startRecording();
     }
   });
