@@ -19,6 +19,10 @@ document.addEventListener("click", function (e) {
     document.getElementById("diaryConfirmModal").classList.remove("show");
     return;
   }
+  if (e.target.closest("#helpModal") && !e.target.closest(".modal-box")) {
+    document.getElementById("helpModal").classList.remove("show");
+    return;
+  }
 
   var vr = document.getElementById("voiceResult");
   var ve = document.getElementById("voiceError");
@@ -39,12 +43,17 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(showCloudGreeting, 600);
   }
 
+  initSettings();
+
   // 底部导航切换
   var navTabs = document.querySelectorAll(".nav-tab");
   navTabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
       var page = this.getAttribute("data-page");
       switchPage(page);
+      if (page === "settings") {
+        refreshSettingsUI();
+      }
     });
   });
 });
