@@ -194,10 +194,11 @@ function showEventPanel(dateStr) {
       delBtn.title = "删除事件";
       delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        deleteEvent(ev.id);
-        // 重新渲染日历圆点 + 事件列表
-        renderCalendar();
-        showEventPanel(dateStr);
+        showConfirm("确定删除「" + ev.title + "」吗？", function () {
+          deleteEvent(ev.id);
+          renderCalendar();
+          showEventPanel(dateStr);
+        });
       });
 
       item.appendChild(info);
