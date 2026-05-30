@@ -306,6 +306,7 @@ function initSpeech() {
 
   // 长按拖动
   micBtn.addEventListener("pointerdown", function (e) {
+    micBtn.setPointerCapture(e.pointerId);
     _dragStartX = e.clientX;
     _dragStartY = e.clientY;
     var rect = micBtn.getBoundingClientRect();
@@ -315,7 +316,6 @@ function initSpeech() {
     _dragTimer = setTimeout(function () {
       _isDragging = true;
       micBtn.classList.add("dragging");
-      micBtn.setPointerCapture(e.pointerId);
       if (!micBtn.style.position || micBtn.style.position !== "fixed") {
         micBtn.style.position = "fixed";
         micBtn.style.left = _btnStartLeft + "px";
@@ -326,13 +326,12 @@ function initSpeech() {
 
   micBtn.addEventListener("pointermove", function (e) {
     if (!_isDragging) return;
-    var dx = e.clientX - _dragStartX;
-    var dy = e.clientY - _dragStartY;
-    micBtn.style.left = (_btnStartLeft + dx) + "px";
-    micBtn.style.top = (_btnStartTop + dy) + "px";
+    e.preventDefault();
+    micBtn.style.left = (_btnStartLeft + e.clientX - _dragStartX) + "px";
+    micBtn.style.top = (_btnStartTop + e.clientY - _dragStartY) + "px";
   });
 
-  micBtn.addEventListener("pointerup", function () {
+  micBtn.addEventListener("pointerup", function (e) {
     clearTimeout(_dragTimer);
     if (_isDragging) {
       micBtn.classList.remove("dragging");
@@ -340,6 +339,14 @@ function initSpeech() {
         left: parseInt(micBtn.style.left),
         top: parseInt(micBtn.style.top)
       }));
+      _isDragging = false;
+    }
+  });
+
+  micBtn.addEventListener("pointercancel", function () {
+    clearTimeout(_dragTimer);
+    if (_isDragging) {
+      micBtn.classList.remove("dragging");
       _isDragging = false;
     }
   });
