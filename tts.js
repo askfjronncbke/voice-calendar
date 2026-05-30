@@ -232,16 +232,3 @@ function getTTSVoiceLabel() {
   return SPEAKERS[ttsCurrentVoice] ? SPEAKERS[ttsCurrentVoice].label : "女声";
 }
 
-// ---------- 初始化 ----------
-
-function initTTS() {
-  const toggle = document.getElementById("voiceToggle");
-  if (toggle) {
-    toggle.addEventListener("click", () => {
-      ttsCurrentVoice = ttsCurrentVoice === "female" ? "male" : "female";
-      toggle.textContent = getTTSVoiceLabel();
-    });
-  }
-}
-
-document.addEventListener("DOMContentLoaded", initTTS);

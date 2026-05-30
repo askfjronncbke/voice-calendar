@@ -506,24 +506,6 @@ body::after {
   gap: 20px;
 }
 
-.voice-toggle {
-  height: 42px;
-  padding: 0 18px;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 20px;
-  background: rgba(255,255,255,0.04);
-  color: #ccc;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.voice-toggle:hover {
-  border-color: #e94560;
-  color: #e94560;
-}
-
 /* ---------- 麦克风按钮 + 波纹动画 ---------- */
 .mic-btn {
   width: 72px;
@@ -577,4 +559,12 @@ body::after {
   background: #c73a52;
   transform: scale(1.1);
   box-shadow: 0 6px 28px rgba(233,69,96,0.5);
+}
+
+/* ---------- 麦克风拖动 ---------- */
+.mic-btn.dragging {
+  transform: scale(1.1);
+  box-shadow: 0 8px 32px rgba(233,69,96,0.55);
+  z-index: 100;
+  touch-action: none;
 }
