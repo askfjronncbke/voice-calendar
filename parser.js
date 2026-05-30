@@ -193,6 +193,7 @@ delete: {"action":"delete","date":"日期","keywords":"关键词"}
   （用户说"取消这周日的安排" → date=这周日，keywords=""，因为"安排"是泛指词）
   （用户说"删除明天的开会" → date=明天，keywords=开会，因为"开会"是具体内容）
   （用户没指定具体哪个事件时，keywords=""，此时删除该日期全部事件）
+  （用户说"清除下周的事件"/"删除下周所有安排" → action=delete，date="next_week"，week_start="${ctx.nextWeekStart}"，week_end="${ctx.nextWeekEnd}"，keywords=""）
 
 只返回 JSON，不要任何解释。
 
@@ -212,7 +213,12 @@ delete: {"action":"delete","date":"日期","keywords":"关键词"}
   注意：月份查询用YYYY-MM格式，不要用YYYY-MM-DD。
 - 输入："我下周有什么安排"
   输出：{"action":"query","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}"}
-  注意：下周必须用 next_week 格式，同时查周一至周日全部七天。`;
+  注意：下周必须用 next_week 格式，同时查周一至周日全部七天。
+- 输入："清除下周的事件"
+  输出：{"action":"delete","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}","keywords":""}
+- 输入："删除下周所有安排"
+  输出：{"action":"delete","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}","keywords":""}
+  注意：下周删除必须用 next_week 格式，keywords为空表示删除全部。`;
 }
 
 // ---------- 日期显示格式化 ----------
@@ -445,8 +451,36 @@ function executeQuery(parsed) {
 }
 
 function executeDelete(parsed) {
-  const dateEvents = getEventsByDate(parsed.date);
   voiceError.textContent = "";
+
+  // 下周删除：遍历整周
+  if (parsed.date === "next_week" && parsed.week_start && parsed.week_end) {
+    const allEvents = getAllEvents().filter(
+      (e) => e.date >= parsed.week_start && e.date <= parsed.week_end
+    );
+
+    if (allEvents.length === 0) {
+      const startDisplay = parsed.week_start.replace(/^\d+-/, "").replace("-", "月") + "日";
+      const endDisplay = parsed.week_end.replace(/^\d+-/, "").replace("-", "月") + "日";
+      voiceResult.textContent = "";
+      voiceError.textContent = "下周（" + startDisplay + "-" + endDisplay + "）没有事件";
+      speak("下周没有事件");
+      renderCalendar();
+      return;
+    }
+
+    allEvents.forEach((e) => deleteEvent(e.id));
+    const startDisplay = parsed.week_start.replace(/^\d+-/, "").replace("-", "月") + "日";
+    const endDisplay = parsed.week_end.replace(/^\d+-/, "").replace("-", "月") + "日";
+    voiceResult.textContent = "已删除：下周（" + startDisplay + "-" + endDisplay + "）全部 " + allEvents.length + " 个事件";
+    speak("已删除，下周全部" + allEvents.length + "个事件");
+    selectedDate = parsed.week_start;
+    renderCalendar();
+    showEventPanel(parsed.week_start);
+    return;
+  }
+
+  const dateEvents = getEventsByDate(parsed.date);
 
   if (dateEvents.length === 0) {
     voiceResult.textContent = "";
