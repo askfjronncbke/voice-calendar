@@ -7,6 +7,8 @@
 document.addEventListener("click", function (e) {
   // 按钮有自己的交互逻辑，不关闭提示
   if (e.target.closest("#micBtn")) return;
+  if (e.target.closest("#diaryMicBtn")) return;
+  if (e.target.closest("#diaryImageBtn")) return;
   if (e.target.closest("#conflictConfirm")) return;
   if (e.target.closest("#conflictCancel")) return;
   if (e.target.closest("#cloudClose")) return;

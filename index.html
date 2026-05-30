@@ -62,9 +62,30 @@
 
     <!-- 日记页面 -->
     <div class="page" id="page-diary">
-      <div class="placeholder-page">
-        <span class="placeholder-icon">📝</span>
-        <span class="placeholder-text">日记功能即将上线</span>
+      <div class="diary-header">
+        <span class="diary-date" id="diaryDate"></span>
+        <div class="diary-nav">
+          <button class="nav-btn" id="diaryPrevDay">&lt;</button>
+          <button class="nav-btn" id="diaryNextDay">&gt;</button>
+        </div>
+        <button class="diary-img-btn" id="diaryImageBtn" title="上传图片">🖼</button>
+      </div>
+      <div class="diary-paper">
+        <textarea class="diary-textarea" id="diaryTextarea" placeholder="在这里写下日记..."></textarea>
+      </div>
+      <div class="voice-area">
+        <div class="voice-result" id="diaryVoiceResult"></div>
+        <div class="voice-error" id="diaryVoiceError"></div>
+        <div class="voice-controls">
+          <button class="mic-btn" id="diaryMicBtn">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+        </div>
       </div>
     </div>
 
@@ -94,6 +115,7 @@
   </nav>
 
   <script src="storage.js"></script>
+  <script src="diary.js"></script>
   <script src="calendar.js"></script>
   <script src="tts.js"></script>
   <script src="parser.js"></script>

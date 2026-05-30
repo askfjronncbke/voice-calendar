@@ -728,6 +728,112 @@ body::after {
   display: block;
 }
 
+/* ---------- 日记页面 ---------- */
+.diary-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.diary-date {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  flex: 1;
+}
+
+.diary-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.diary-img-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.diary-img-btn:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.diary-paper {
+  background: rgba(255, 252, 245, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 320px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 横线笔记本背景 */
+.diary-paper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 31px,
+    rgba(255, 255, 255, 0.04) 31px,
+    rgba(255, 255, 255, 0.04) 32px
+  );
+  pointer-events: none;
+}
+
+.diary-textarea {
+  width: 100%;
+  min-height: 280px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ddd;
+  font-size: 17px;
+  line-height: 32px;
+  font-family: "PingFang SC", "Microsoft YaHei", "HarmonyOS Sans SC", sans-serif;
+  resize: vertical;
+  position: relative;
+  z-index: 1;
+}
+
+.diary-textarea::placeholder {
+  color: #555;
+}
+
+.diary-textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.diary-textarea::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+/* ---------- 日历铅笔图标 ---------- */
+.day-cell .pencil {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 10px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* ---------- 占位页面 ---------- */
 .placeholder-page {
   display: flex;

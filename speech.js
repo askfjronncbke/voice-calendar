@@ -21,6 +21,15 @@ let accumulatedText = "";
 let micBtn = null;
 let voiceResult = null;
 let voiceError = null;
+let speechCallback = null;
+
+function setSpeechCallback(fn) { speechCallback = fn; }
+
+function setSpeechElements(mic, result, error) {
+  micBtn = mic;
+  voiceResult = result;
+  voiceError = error;
+}
 
 // ---------- 工具函数 ----------
 
@@ -170,7 +179,12 @@ function handleMessage(event) {
   if (result.ls && accumulatedText.replace(/[。，！？、\.\,\!\?\s]/g, "").length > 0) {
     console.log("Final text for parsing:", JSON.stringify(accumulatedText));
     voiceError.textContent = "";
-    parseAndExecute(accumulatedText.trim());
+    if (speechCallback) {
+      speechCallback(accumulatedText.trim());
+      speechCallback = null;
+    } else {
+      parseAndExecute(accumulatedText.trim());
+    }
   }
 }
 
