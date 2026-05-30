@@ -142,6 +142,57 @@ document.addEventListener("click", function (e) {
   }
 });
 
+// ---------- 自定义确认弹窗 ----------
+
+function showDiaryConfirm(onConfirm) {
+  const overlay = document.getElementById("diaryConfirmModal");
+  overlay.classList.add("show");
+  document.getElementById("diaryConfirmYes").onclick = function () {
+    overlay.classList.remove("show");
+    onConfirm();
+  };
+  document.getElementById("diaryConfirmNo").onclick = function () {
+    overlay.classList.remove("show");
+  };
+}
+
+// ---------- 日记框拖拽调整高度 ----------
+
+function initResizeHandle() {
+  const handle = document.getElementById("diaryResizeHandle");
+  const paper = document.querySelector(".diary-paper");
+  let resizing = false;
+  let startY = 0;
+  let startHeight = 0;
+
+  handle.addEventListener("pointerdown", function (e) {
+    resizing = true;
+    handle.setPointerCapture(e.pointerId);
+    startY = e.clientY;
+    startHeight = paper.getBoundingClientRect().height;
+  });
+
+  handle.addEventListener("pointermove", function (e) {
+    if (!resizing) return;
+    const dy = e.clientY - startY;
+    const newH = Math.max(200, startHeight + dy);
+    paper.style.minHeight = newH + "px";
+  });
+
+  handle.addEventListener("pointerup", function () {
+    if (resizing) {
+      resizing = false;
+      const h = paper.getBoundingClientRect().height;
+      paper.style.minHeight = h + "px";
+      paper.style.flex = "none";
+    }
+  });
+
+  handle.addEventListener("pointercancel", function () {
+    resizing = false;
+  });
+}
+
 // ---------- 初始化 ----------
 
 function initDiary() {
@@ -158,12 +209,14 @@ function initDiary() {
   textarea.addEventListener("input", scheduleDiarySave);
 
   document.getElementById("diaryTrashBtn").addEventListener("click", function () {
-    if (confirm("确定清空今天的日记吗？")) {
+    showDiaryConfirm(function () {
       textarea.value = "";
       saveDiary(diaryDate, "");
       renderCalendar();
-    }
+    });
   });
+
+  initResizeHandle();
 }
 
 document.addEventListener("DOMContentLoaded", initDiary);

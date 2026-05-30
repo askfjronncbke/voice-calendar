@@ -330,22 +330,10 @@ var _audioUnlocked = false;
 function unlockAudio() {
   if (_audioUnlocked) return;
   _audioUnlocked = true;
-  var audioCtx = null;
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  } catch (e) {
-    return;
-  }
-  var buf = audioCtx.createBuffer(1, 1, 22050);
-  var src = audioCtx.createBufferSource();
-  src.buffer = buf;
-  src.connect(audioCtx.destination);
-  src.start(0);
-  setTimeout(function () {
-    if (audioCtx && audioCtx.state !== "closed") {
-      audioCtx.close().catch(function () {});
-    }
-  }, 200);
+  // 创建共享 Audio 元素（用户手势内创建，后续 TTS 复用）
+  window._sharedAudio = new Audio();
+  window._sharedAudio.play().catch(function () {});
+  window._sharedAudio.pause();
 }
 
 function initSpeech() {

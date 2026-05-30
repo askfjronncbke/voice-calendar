@@ -12,6 +12,12 @@ document.addEventListener("click", function (e) {
   if (e.target.closest("#cloudClose")) return;
   if (e.target.closest(".nav-tab")) return;
 
+  // 点击弹窗遮罩关闭
+  if (e.target.closest("#diaryConfirmModal") && !e.target.closest(".modal-box")) {
+    document.getElementById("diaryConfirmModal").classList.remove("show");
+    return;
+  }
+
   var vr = document.getElementById("voiceResult");
   var ve = document.getElementById("voiceError");
   if (vr) vr.textContent = "";

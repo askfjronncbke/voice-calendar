@@ -915,6 +915,108 @@ body::after {
   background: rgba(233,69,96,0.25);
 }
 
+/* 日记调整高度手柄 */
+.diary-resize-handle {
+  height: 10px;
+  cursor: ns-resize;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.03);
+  border-radius: 0 0 8px 8px;
+  margin: 0 -20px -20px -20px;
+  position: relative;
+}
+
+.diary-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.15);
+}
+
+.diary-resize-handle:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.diary-resize-handle:hover::after {
+  background: rgba(255,255,255,0.3);
+}
+
+/* ---------- 自定义确认弹窗 ---------- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-box {
+  background: rgba(22, 22, 44, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 32px 28px 24px;
+  max-width: 320px;
+  width: 85%;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+
+.modal-msg {
+  font-size: 17px;
+  color: #ddd;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.modal-btn {
+  height: 42px;
+  padding: 0 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: inherit;
+}
+
+.modal-btn-cancel {
+  background: rgba(255,255,255,0.08);
+  color: #999;
+}
+
+.modal-btn-cancel:hover {
+  background: rgba(255,255,255,0.14);
+  color: #ccc;
+}
+
+.modal-btn-confirm {
+  background: #e94560;
+  color: #fff;
+}
+
+.modal-btn-confirm:hover {
+  background: #d63850;
+}
+
 /* ---------- 日历铅笔图标 ---------- */
 .day-cell .pencil {
   position: absolute;

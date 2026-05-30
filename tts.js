@@ -136,15 +136,25 @@ function ttsPlayAudio(audioChunks) {
   const blob = new Blob([bytes.buffer], { type: "audio/mp3" });
   const url = URL.createObjectURL(blob);
 
-  if (ttsAudioEl) {
-    ttsAudioEl.pause();
-    URL.revokeObjectURL(ttsAudioEl.src);
+  var audioEl = window._sharedAudio || new Audio();
+  // 共享 Audio 元素被移除时回退到新建
+  if (!audioEl || !document.contains(audioEl)) {
+    audioEl = new Audio();
   }
+  audioEl.pause();
+  if (audioEl.src) {
+    URL.revokeObjectURL(audioEl.src);
+  }
+  audioEl.src = url;
+  audioEl.play().catch(function (e) {
+    console.warn("TTS playback:", e.message);
+  });
 
-  ttsAudioEl = new Audio(url);
-  ttsAudioEl.play().catch((e) => console.warn("TTS playback:", e.message));
+  audioEl.onended = function () {
+    URL.revokeObjectURL(url);
+  };
 
-  ttsAudioEl.onended = () => URL.revokeObjectURL(url);
+  ttsAudioEl = audioEl;
 }
 
 // ---------- 文本编码（UTF-8 → base64）----------
