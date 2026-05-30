@@ -53,12 +53,10 @@
     <!-- 日记页面 -->
     <div class="page" id="page-diary">
       <div class="diary-header">
-        <span class="diary-date" id="diaryDate"></span>
-        <div class="diary-nav">
-          <button class="nav-btn" id="diaryPrevDay">&lt;</button>
-          <button class="nav-btn" id="diaryNextDay">&gt;</button>
-        </div>
-        <button class="diary-img-btn" id="diaryImageBtn" title="上传图片">🖼</button>
+        <button class="diary-ym-btn" id="diaryYearBtn"></button>
+        <button class="diary-ym-btn" id="diaryMonthBtn"></button>
+        <div class="diary-dropdown" id="diaryYearDropdown"></div>
+        <div class="diary-dropdown" id="diaryMonthDropdown"></div>
       </div>
       <div class="diary-paper">
         <textarea class="diary-textarea" id="diaryTextarea" placeholder="在这里写下日记..."></textarea>

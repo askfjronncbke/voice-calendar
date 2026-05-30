@@ -1,10 +1,9 @@
 // ============================================
 // 日记功能
-// - localStorage 存储日记内容（含 base64 图片）
+// - localStorage 存储日记内容
 // - 打字输入 + 自动保存
-// - 图片上传（base64 内嵌）
+// - 年月快速选择（下拉列表）
 // - 语音输入（追加到日记内容）
-// - 日期导航（左右箭头）
 // ============================================
 
 const DIARY_KEY = "voice_calendar_diary";
@@ -29,29 +28,8 @@ function hasDiary(dateStr) {
 
 let diaryDate = null;
 let diarySaveTimer = null;
-
-function fmtDiaryDate(dateStr) {
-  const parts = dateStr.split("-");
-  if (parts.length === 3) {
-    return parts[0] + "年" + parts[1] + "月" + parts[2] + "日";
-  }
-  return dateStr;
-}
-
-function loadDiary(dateStr) {
-  diaryDate = dateStr;
-  document.getElementById("diaryDate").textContent = fmtDiaryDate(dateStr);
-  const textarea = document.getElementById("diaryTextarea");
-  textarea.value = getDiary(dateStr);
-}
-
-function switchDiaryDate(delta) {
-  const parts = diaryDate.split("-");
-  const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-  d.setDate(d.getDate() + delta);
-  const newDate = fmtDateISO(d.getFullYear(), d.getMonth(), d.getDate());
-  loadDiary(newDate);
-}
+let diaryYear = null;
+let diaryMonth = null;
 
 function fmtDateISO(year, month, day) {
   return (
@@ -63,6 +41,16 @@ function fmtDateISO(year, month, day) {
   );
 }
 
+function loadDiary(dateStr) {
+  diaryDate = dateStr;
+  const parts = dateStr.split("-");
+  diaryYear = parseInt(parts[0]);
+  diaryMonth = parseInt(parts[1]) - 1;
+  document.getElementById("diaryYearBtn").textContent = diaryYear + "年";
+  document.getElementById("diaryMonthBtn").textContent = (diaryMonth + 1) + "月";
+  document.getElementById("diaryTextarea").value = getDiary(dateStr);
+}
+
 // ---------- 自动保存 ----------
 
 function scheduleDiarySave() {
@@ -71,55 +59,103 @@ function scheduleDiarySave() {
     const textarea = document.getElementById("diaryTextarea");
     if (textarea && diaryDate) {
       saveDiary(diaryDate, textarea.value);
+      renderCalendar();
     }
   }, 600);
 }
 
-// ---------- 图片上传 ----------
+// ---------- 年月下拉选择 ----------
 
-function insertImage() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.onchange = function () {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function () {
-      const textarea = document.getElementById("diaryTextarea");
-      const imgMarkdown = "\n![图片](" + reader.result + ")\n";
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const before = textarea.value.substring(0, start);
-      const after = textarea.value.substring(end);
-      textarea.value = before + imgMarkdown + after;
-      textarea.selectionStart = textarea.selectionEnd = start + imgMarkdown.length;
-      textarea.focus();
-      saveDiary(diaryDate, textarea.value);
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
+function buildYearDropdown() {
+  const dropdown = document.getElementById("diaryYearDropdown");
+  const currentYear = new Date().getFullYear();
+  dropdown.innerHTML = "";
+  for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+    const item = document.createElement("div");
+    item.classList.add("diary-dropdown-item");
+    if (y === diaryYear) item.classList.add("selected");
+    item.textContent = y + "年";
+    item.addEventListener("click", function () {
+      diaryYear = y;
+      document.getElementById("diaryYearBtn").textContent = y + "年";
+      closeAllDropdowns();
+      applyDiaryDate();
+    });
+    dropdown.appendChild(item);
+  }
 }
+
+function buildMonthDropdown() {
+  const dropdown = document.getElementById("diaryMonthDropdown");
+  dropdown.innerHTML = "";
+  for (let m = 1; m <= 12; m++) {
+    const item = document.createElement("div");
+    item.classList.add("diary-dropdown-item");
+    if (m === diaryMonth + 1) item.classList.add("selected");
+    item.textContent = m + "月";
+    item.addEventListener("click", function () {
+      diaryMonth = m - 1;
+      document.getElementById("diaryMonthBtn").textContent = m + "月";
+      closeAllDropdowns();
+      applyDiaryDate();
+    });
+    dropdown.appendChild(item);
+  }
+}
+
+function applyDiaryDate() {
+  const today = new Date();
+  let day = 1;
+  if (diaryYear === today.getFullYear() && diaryMonth === today.getMonth()) {
+    day = today.getDate();
+  }
+  diaryDate = fmtDateISO(diaryYear, diaryMonth, day);
+  document.getElementById("diaryTextarea").value = getDiary(diaryDate);
+  document.getElementById("diaryYearBtn").textContent = diaryYear + "年";
+  document.getElementById("diaryMonthBtn").textContent = (diaryMonth + 1) + "月";
+}
+
+function toggleYearDropdown() {
+  var dd = document.getElementById("diaryYearDropdown");
+  var md = document.getElementById("diaryMonthDropdown");
+  md.classList.remove("show");
+  buildYearDropdown();
+  dd.classList.toggle("show");
+}
+
+function toggleMonthDropdown() {
+  var dd = document.getElementById("diaryMonthDropdown");
+  var yd = document.getElementById("diaryYearDropdown");
+  yd.classList.remove("show");
+  buildMonthDropdown();
+  dd.classList.toggle("show");
+}
+
+function closeAllDropdowns() {
+  document.getElementById("diaryYearDropdown").classList.remove("show");
+  document.getElementById("diaryMonthDropdown").classList.remove("show");
+}
+
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".diary-ym-btn") && !e.target.closest(".diary-dropdown")) {
+    closeAllDropdowns();
+  }
+});
 
 // ---------- 初始化 ----------
 
 function initDiary() {
   const today = new Date();
-  diaryDate = fmtDateISO(today.getFullYear(), today.getMonth(), today.getDate());
+  diaryYear = today.getFullYear();
+  diaryMonth = today.getMonth();
+  diaryDate = fmtDateISO(diaryYear, diaryMonth, today.getDate());
   loadDiary(diaryDate);
 
-  document.getElementById("diaryPrevDay").addEventListener("click", function () {
-    switchDiaryDate(-1);
-  });
-  document.getElementById("diaryNextDay").addEventListener("click", function () {
-    switchDiaryDate(1);
-  });
+  document.getElementById("diaryYearBtn").addEventListener("click", toggleYearDropdown);
+  document.getElementById("diaryMonthBtn").addEventListener("click", toggleMonthDropdown);
 
   const textarea = document.getElementById("diaryTextarea");
   textarea.addEventListener("input", scheduleDiarySave);
-
-  document.getElementById("diaryImageBtn").addEventListener("click", insertImage);
 }
 
 document.addEventListener("DOMContentLoaded", initDiary);
