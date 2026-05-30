@@ -292,18 +292,76 @@ function cleanupRecording() {
 
 // ---------- 初始化 ----------
 
+let _dragTimer = null;
+let _isDragging = false;
+let _dragStartX = 0;
+let _dragStartY = 0;
+let _btnStartLeft = 0;
+let _btnStartTop = 0;
+
 function initSpeech() {
   micBtn = document.getElementById("micBtn");
   voiceResult = document.getElementById("voiceResult");
   voiceError = document.getElementById("voiceError");
 
-  micBtn.addEventListener("click", () => {
+  // 长按拖动
+  micBtn.addEventListener("pointerdown", function (e) {
+    _dragStartX = e.clientX;
+    _dragStartY = e.clientY;
+    var rect = micBtn.getBoundingClientRect();
+    _btnStartLeft = rect.left;
+    _btnStartTop = rect.top;
+
+    _dragTimer = setTimeout(function () {
+      _isDragging = true;
+      micBtn.classList.add("dragging");
+      micBtn.setPointerCapture(e.pointerId);
+      if (!micBtn.style.position || micBtn.style.position !== "fixed") {
+        micBtn.style.position = "fixed";
+        micBtn.style.left = _btnStartLeft + "px";
+        micBtn.style.top = _btnStartTop + "px";
+      }
+    }, 500);
+  });
+
+  micBtn.addEventListener("pointermove", function (e) {
+    if (!_isDragging) return;
+    var dx = e.clientX - _dragStartX;
+    var dy = e.clientY - _dragStartY;
+    micBtn.style.left = (_btnStartLeft + dx) + "px";
+    micBtn.style.top = (_btnStartTop + dy) + "px";
+  });
+
+  micBtn.addEventListener("pointerup", function () {
+    clearTimeout(_dragTimer);
+    if (_isDragging) {
+      micBtn.classList.remove("dragging");
+      localStorage.setItem("mic_btn_position", JSON.stringify({
+        left: parseInt(micBtn.style.left),
+        top: parseInt(micBtn.style.top)
+      }));
+      _isDragging = false;
+    }
+  });
+
+  // 短按（无拖动）触发录音
+  micBtn.addEventListener("click", function () {
+    if (_isDragging) return;
     if (isRecording) {
       stopRecording();
     } else {
       startRecording();
     }
   });
+
+  // 恢复上次拖拽位置
+  var saved = localStorage.getItem("mic_btn_position");
+  if (saved) {
+    var pos = JSON.parse(saved);
+    micBtn.style.position = "fixed";
+    micBtn.style.left = pos.left + "px";
+    micBtn.style.top = pos.top + "px";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", initSpeech);
