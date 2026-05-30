@@ -716,7 +716,19 @@ body::after {
 .mic-btn.recording {
   background: #c73a52;
   transform: scale(1.1);
-  box-shadow: 0 6px 28px rgba(233,69,96,0.5);
+}
+
+@keyframes recordingPulse {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(233,69,96,0.6), 0 0 35px rgba(233,69,96,0.35), 0 0 60px rgba(233,69,96,0.15);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(233,69,96,0.9), 0 0 55px rgba(233,69,96,0.55), 0 0 85px rgba(233,69,96,0.28);
+  }
+}
+
+.mic-btn.recording {
+  animation: recordingPulse 1.2s ease-in-out infinite;
 }
 
 /* ---------- 页面切换 ---------- */
@@ -914,7 +926,7 @@ body::after {
 /* ---------- 麦克风拖动 ---------- */
 .mic-btn.dragging {
   transform: scale(1.1);
-  box-shadow: 0 8px 32px rgba(233,69,96,0.55);
+  box-shadow: 0 0 18px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.12);
   z-index: 100;
   touch-action: none;
 }

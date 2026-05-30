@@ -102,92 +102,6 @@ function insertImage() {
   input.click();
 }
 
-// ---------- 语音输入（日记模式）----------
-
-function initDiarySpeech() {
-  const diaryMic = document.getElementById("diaryMicBtn");
-  const diaryResult = document.getElementById("diaryVoiceResult");
-  const diaryError = document.getElementById("diaryVoiceError");
-
-  if (!diaryMic) return;
-
-  // 日记麦克风拖动（复用相同逻辑）
-  let dragTimer = null;
-  let isDragging = false;
-  let dragStartX = 0, dragStartY = 0;
-  let btnStartLeft = 0, btnStartTop = 0;
-
-  diaryMic.addEventListener("pointerdown", function (e) {
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    const rect = diaryMic.getBoundingClientRect();
-    btnStartLeft = rect.left;
-    btnStartTop = rect.top;
-
-    dragTimer = setTimeout(function () {
-      isDragging = true;
-      diaryMic.classList.add("dragging");
-      diaryMic.setPointerCapture(e.pointerId);
-      if (!diaryMic.style.position || diaryMic.style.position !== "fixed") {
-        diaryMic.style.position = "fixed";
-        diaryMic.style.left = btnStartLeft + "px";
-        diaryMic.style.top = btnStartTop + "px";
-      }
-    }, 500);
-  });
-
-  diaryMic.addEventListener("pointermove", function (e) {
-    if (!isDragging) return;
-    diaryMic.style.left = (btnStartLeft + e.clientX - dragStartX) + "px";
-    diaryMic.style.top = (btnStartTop + e.clientY - dragStartY) + "px";
-  });
-
-  diaryMic.addEventListener("pointerup", function () {
-    clearTimeout(dragTimer);
-    if (isDragging) {
-      diaryMic.classList.remove("dragging");
-      localStorage.setItem("diary_mic_btn_position", JSON.stringify({
-        left: parseInt(diaryMic.style.left),
-        top: parseInt(diaryMic.style.top)
-      }));
-      isDragging = false;
-    }
-  });
-
-  diaryMic.addEventListener("click", function () {
-    if (isDragging) return;
-    if (isRecording) {
-      stopRecording();
-      return;
-    }
-    setSpeechElements(diaryMic, diaryResult, diaryError);
-    setSpeechCallback(function (text) {
-      const textarea = document.getElementById("diaryTextarea");
-      if (textarea) {
-        const current = textarea.value;
-        const separator = current && !current.endsWith("\n") ? "\n" : "";
-        textarea.value = current + separator + text + "\n";
-        saveDiary(diaryDate, textarea.value);
-      }
-      setSpeechElements(
-        document.getElementById("micBtn"),
-        document.getElementById("voiceResult"),
-        document.getElementById("voiceError")
-      );
-    });
-    startRecording();
-  });
-
-  // 恢复上次拖拽位置
-  const saved = localStorage.getItem("diary_mic_btn_position");
-  if (saved) {
-    const pos = JSON.parse(saved);
-    diaryMic.style.position = "fixed";
-    diaryMic.style.left = pos.left + "px";
-    diaryMic.style.top = pos.top + "px";
-  }
-}
-
 // ---------- 初始化 ----------
 
 function initDiary() {
@@ -206,8 +120,6 @@ function initDiary() {
   textarea.addEventListener("input", scheduleDiarySave);
 
   document.getElementById("diaryImageBtn").addEventListener("click", insertImage);
-
-  initDiarySpeech();
 }
 
 document.addEventListener("DOMContentLoaded", initDiary);
