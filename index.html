@@ -53,17 +53,28 @@
     <!-- 日记页面 -->
     <div class="page" id="page-diary">
       <div class="diary-header">
-        <div class="diary-picker">
-          <button class="diary-ym-btn" id="diaryYearBtn"></button>
-          <div class="diary-dropdown" id="diaryYearDropdown"></div>
+        <div class="diary-date-wrap">
+          <button class="diary-date-btn" id="diaryDateBtn"></button>
+          <div class="mini-cal-popup" id="miniCalPopup">
+            <div class="mini-cal-header">
+              <button class="mini-cal-arrow" id="miniCalPrevYear">&laquo;</button>
+              <span class="mini-cal-year" id="miniCalYear"></span>
+              <button class="mini-cal-arrow" id="miniCalNextYear">&raquo;</button>
+              <button class="mini-cal-arrow" id="miniCalPrevMonth">&lsaquo;</button>
+              <span class="mini-cal-month" id="miniCalMonth"></span>
+              <button class="mini-cal-arrow" id="miniCalNextMonth">&rsaquo;</button>
+            </div>
+            <div class="mini-cal-weekdays">
+              <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+            </div>
+            <div class="mini-cal-grid" id="miniCalGrid"></div>
+          </div>
         </div>
-        <div class="diary-picker">
-          <button class="diary-ym-btn" id="diaryMonthBtn"></button>
-          <div class="diary-dropdown" id="diaryMonthDropdown"></div>
-        </div>
+        <button class="diary-trash-btn" id="diaryTrashBtn" title="清空日记">🗑️</button>
       </div>
       <div class="diary-paper">
         <textarea class="diary-textarea" id="diaryTextarea" placeholder="在这里写下日记..."></textarea>
+        <div class="diary-resize-handle" id="diaryResizeHandle"></div>
       </div>
       <div class="voice-area">
         <div class="voice-result" id="diaryVoiceResult"></div>
@@ -87,6 +98,17 @@
         <line x1="8" y1="23" x2="16" y2="23"/>
       </svg>
     </button>
+  </div>
+
+  <!-- 自定义确认弹窗 -->
+  <div class="modal-overlay" id="diaryConfirmModal">
+    <div class="modal-box">
+      <div class="modal-msg" id="diaryConfirmMsg"></div>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-cancel" id="diaryConfirmNo">取消</button>
+        <button class="modal-btn modal-btn-confirm" id="diaryConfirmYes">确定</button>
+      </div>
+    </div>
   </div>
 
   <!-- 底部导航栏 -->

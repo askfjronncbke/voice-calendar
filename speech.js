@@ -325,18 +325,28 @@ function activeVoiceElements() {
   };
 }
 
+var _audioUnlocked = false;
+
+function unlockAudio() {
+  if (_audioUnlocked) return;
+  _audioUnlocked = true;
+  window._sharedAudio = new Audio();
+  window._sharedAudio.play().catch(function () {});
+  window._sharedAudio.pause();
+}
+
 function initSpeech() {
   micBtn = document.getElementById("micBtn");
   var els = activeVoiceElements();
   voiceResult = els.result;
   voiceError = els.error;
 
-  // 长按拖动：中心偏移量 + 同步 setPointerCapture
+  // 长按拖动
   micBtn.addEventListener("pointerdown", function (e) {
     micBtn.setPointerCapture(e.pointerId);
     var rect = micBtn.getBoundingClientRect();
-    _offsetX = e.clientX - (rect.left + rect.width / 2);
-    _offsetY = e.clientY - (rect.top + rect.height / 2);
+    _offsetX = e.clientX - rect.left;
+    _offsetY = e.clientY - rect.top;
 
     _dragTimer = setTimeout(function () {
       _isDragging = true;
@@ -349,14 +359,13 @@ function initSpeech() {
     }, 500);
   });
 
-  micBtn.addEventListener("pointermove", function (e) {
+  document.addEventListener("pointermove", function (e) {
     if (!_isDragging) return;
-    var r = micBtn.getBoundingClientRect();
-    micBtn.style.left = (e.clientX - _offsetX - r.width / 2) + "px";
-    micBtn.style.top = (e.clientY - _offsetY - r.height / 2) + "px";
+    micBtn.style.left = (e.clientX - _offsetX) + "px";
+    micBtn.style.top = (e.clientY - _offsetY) + "px";
   });
 
-  micBtn.addEventListener("pointerup", function () {
+  document.addEventListener("pointerup", function () {
     clearTimeout(_dragTimer);
     if (_isDragging) {
       micBtn.classList.remove("dragging");
@@ -370,7 +379,7 @@ function initSpeech() {
 
   micBtn.addEventListener("click", function () {
     if (_isDragging) return;
-    // 根据当前活跃页面切换语音目标
+    unlockAudio();
     var els = activeVoiceElements();
     voiceResult = els.result;
     voiceError = els.error;
@@ -378,7 +387,6 @@ function initSpeech() {
     if (isRecording) {
       stopRecording();
     } else {
-      // 日记页面：设置追加回调
       var diaryPage = document.getElementById("page-diary");
       if (diaryPage && diaryPage.classList.contains("active")) {
         setSpeechCallback(function (text) {
@@ -389,6 +397,7 @@ function initSpeech() {
             textarea.value = cur + sep + text + "\n";
             saveDiary(diaryDate, textarea.value);
           }
+          voiceResult.textContent = "";
         });
       } else {
         setSpeechCallback(null);
