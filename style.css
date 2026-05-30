@@ -749,15 +749,12 @@ body::after {
 .diary-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
   margin-bottom: 24px;
 }
 
-.diary-picker {
-  position: relative;
-}
-
-.diary-ym-btn {
+/* ---------- 日记日期按钮 ---------- */
+.diary-date-btn {
   font-size: 18px;
   font-weight: 600;
   color: #fff;
@@ -768,72 +765,144 @@ body::after {
   cursor: pointer;
   transition: background 0.2s;
   font-family: inherit;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
-.diary-ym-btn::after {
-  content: "";
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid #888;
-}
-
-.diary-ym-btn:hover {
+.diary-date-btn:hover {
   background: rgba(255,255,255,0.1);
 }
 
-.diary-dropdown {
+/* ---------- 迷你日历弹窗 ---------- */
+.mini-cal-popup {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 6px;
-  background: rgba(18, 18, 38, 0.96);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(22, 22, 44, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  max-height: 220px;
-  overflow-y: auto;
-  z-index: 30;
-  min-width: 100px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border-radius: 20px;
+  padding: 24px;
+  z-index: 150;
+  width: 300px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
 }
 
-.diary-dropdown.show {
+.mini-cal-popup.show {
   display: block;
 }
 
-.diary-dropdown::-webkit-scrollbar {
-  width: 3px;
+.mini-cal-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-.diary-dropdown::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.12);
-  border-radius: 2px;
+.mini-cal-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
-.diary-dropdown-item {
-  padding: 11px 24px;
-  color: #999;
-  cursor: pointer;
+.mini-cal-year,
+.mini-cal-month {
+  font-size: 17px;
+  font-weight: 600;
+  color: #eee;
+  min-width: 80px;
   text-align: center;
-  font-size: 16px;
-  transition: all 0.15s;
 }
 
-.diary-dropdown-item:hover {
-  background: rgba(255,255,255,0.06);
+.mini-cal-year {
+  font-size: 18px;
   color: #fff;
 }
 
-.diary-dropdown-item.selected {
-  color: #e94560;
-  background: rgba(233,69,96,0.08);
+.mini-cal-arrow {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: #aaa;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.mini-cal-arrow:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.mini-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.mini-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.mini-cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: #bbb;
+  position: relative;
+}
+
+.mini-cal-cell.empty {
+  pointer-events: none;
+}
+
+.mini-cal-cell:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.mini-cal-cell.selected {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.mini-cal-cell.today {
+  background: radial-gradient(circle at 40% 35%, #fff5c0, #ffd700);
+  color: #1a1a2e;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(255,210,60,0.5);
+}
+
+.mini-cal-cell.today.selected {
+  box-shadow: 0 0 10px rgba(255,210,60,0.5), 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+.mini-cal-pencil {
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 8px;
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .diary-paper {
@@ -864,24 +933,6 @@ body::after {
     rgba(255, 255, 255, 0.04) 32px
   );
   pointer-events: none;
-}
-
-.diary-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #eee;
-  padding-bottom: 10px;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-  user-select: none;
-}
-
-.diary-title-line {
-  height: 1px;
-  background: rgba(255,255,255,0.08);
-  margin-bottom: 14px;
-  flex-shrink: 0;
 }
 
 .diary-textarea {

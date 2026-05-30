@@ -2,7 +2,7 @@
 // 日记功能
 // - localStorage 存储日记内容
 // - 打字输入 + 自动保存
-// - 年月快速选择（下拉列表）
+// - 迷你日历弹窗选择日期
 // - 语音输入（追加到日记内容）
 // ============================================
 
@@ -31,6 +31,10 @@ let diarySaveTimer = null;
 let diaryYear = null;
 let diaryMonth = null;
 
+// 迷你日历当前查看的年月
+let _mcYear = null;
+let _mcMonth = null;
+
 function fmtDateISO(year, month, day) {
   return (
     String(year).padStart(4, "0") +
@@ -41,15 +45,17 @@ function fmtDateISO(year, month, day) {
   );
 }
 
+function fmtDateLabel(year, month, day) {
+  return year + "年" + (month + 1) + "月" + day + "日";
+}
+
 function loadDiary(dateStr) {
   diaryDate = dateStr;
   const parts = dateStr.split("-");
   diaryYear = parseInt(parts[0]);
   diaryMonth = parseInt(parts[1]) - 1;
   const day = parseInt(parts[2]);
-  document.getElementById("diaryYearBtn").textContent = diaryYear + "年";
-  document.getElementById("diaryMonthBtn").textContent = (diaryMonth + 1) + "月";
-  document.getElementById("diaryTitle").textContent = diaryYear + "年" + (diaryMonth + 1) + "月" + day + "日";
+  document.getElementById("diaryDateBtn").textContent = fmtDateLabel(diaryYear, diaryMonth, day);
   document.getElementById("diaryTextarea").value = getDiary(dateStr);
 }
 
@@ -66,84 +72,73 @@ function scheduleDiarySave() {
   }, 600);
 }
 
-// ---------- 年月下拉选择 ----------
+// ---------- 迷你日历弹窗 ----------
 
-function buildYearDropdown() {
-  const dropdown = document.getElementById("diaryYearDropdown");
-  const currentYear = new Date().getFullYear();
-  dropdown.innerHTML = "";
-  for (let y = currentYear - 5; y <= currentYear + 5; y++) {
-    const item = document.createElement("div");
-    item.classList.add("diary-dropdown-item");
-    if (y === diaryYear) item.classList.add("selected");
-    item.textContent = y + "年";
-    item.addEventListener("click", function () {
-      diaryYear = y;
-      document.getElementById("diaryYearBtn").textContent = y + "年";
-      closeAllDropdowns();
-      applyDiaryDate();
-    });
-    dropdown.appendChild(item);
-  }
-}
+function renderMiniCalendar() {
+  const grid = document.getElementById("miniCalGrid");
+  document.getElementById("miniCalYear").textContent = _mcYear + "年";
+  document.getElementById("miniCalMonth").textContent = (_mcMonth + 1) + "月";
 
-function buildMonthDropdown() {
-  const dropdown = document.getElementById("diaryMonthDropdown");
-  dropdown.innerHTML = "";
-  for (let m = 1; m <= 12; m++) {
-    const item = document.createElement("div");
-    item.classList.add("diary-dropdown-item");
-    if (m === diaryMonth + 1) item.classList.add("selected");
-    item.textContent = m + "月";
-    item.addEventListener("click", function () {
-      diaryMonth = m - 1;
-      document.getElementById("diaryMonthBtn").textContent = m + "月";
-      closeAllDropdowns();
-      applyDiaryDate();
-    });
-    dropdown.appendChild(item);
-  }
-}
+  grid.innerHTML = "";
 
-function applyDiaryDate() {
+  const firstDay = new Date(_mcYear, _mcMonth, 1).getDay();
+  const daysInMonth = new Date(_mcYear, _mcMonth + 1, 0).getDate();
   const today = new Date();
-  let day = 1;
-  if (diaryYear === today.getFullYear() && diaryMonth === today.getMonth()) {
-    day = today.getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const cell = document.createElement("div");
+    cell.classList.add("mini-cal-cell", "empty");
+    grid.appendChild(cell);
   }
-  diaryDate = fmtDateISO(diaryYear, diaryMonth, day);
-  document.getElementById("diaryTitle").textContent = diaryYear + "年" + (diaryMonth + 1) + "月" + day + "日";
-  document.getElementById("diaryTextarea").value = getDiary(diaryDate);
-  document.getElementById("diaryYearBtn").textContent = diaryYear + "年";
-  document.getElementById("diaryMonthBtn").textContent = (diaryMonth + 1) + "月";
-}
 
-function toggleYearDropdown() {
-  var dd = document.getElementById("diaryYearDropdown");
-  var md = document.getElementById("diaryMonthDropdown");
-  md.classList.remove("show");
-  buildYearDropdown();
-  dd.classList.toggle("show");
-}
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement("div");
+    cell.classList.add("mini-cal-cell");
+    cell.textContent = d;
 
-function toggleMonthDropdown() {
-  var dd = document.getElementById("diaryMonthDropdown");
-  var yd = document.getElementById("diaryYearDropdown");
-  yd.classList.remove("show");
-  buildMonthDropdown();
-  dd.classList.toggle("show");
-}
+    const dateStr = fmtDateISO(_mcYear, _mcMonth, d);
 
-function closeAllDropdowns() {
-  document.getElementById("diaryYearDropdown").classList.remove("show");
-  document.getElementById("diaryMonthDropdown").classList.remove("show");
-}
+    if (dateStr === diaryDate) {
+      cell.classList.add("selected");
+    }
 
-document.addEventListener("click", function (e) {
-  if (!e.target.closest(".diary-ym-btn") && !e.target.closest(".diary-dropdown")) {
-    closeAllDropdowns();
+    if (
+      _mcYear === today.getFullYear() &&
+      _mcMonth === today.getMonth() &&
+      d === today.getDate()
+    ) {
+      cell.classList.add("today");
+    }
+
+    if (hasDiary(dateStr)) {
+      const pencil = document.createElement("span");
+      pencil.classList.add("mini-cal-pencil");
+      pencil.textContent = "✏️";
+      cell.appendChild(pencil);
+    }
+
+    cell.addEventListener("click", function () {
+      diaryYear = _mcYear;
+      diaryMonth = _mcMonth;
+      diaryDate = dateStr;
+      loadDiary(diaryDate);
+      hideMiniCalendar();
+    });
+
+    grid.appendChild(cell);
   }
-});
+}
+
+function showMiniCalendar() {
+  _mcYear = diaryYear;
+  _mcMonth = diaryMonth;
+  renderMiniCalendar();
+  document.getElementById("miniCalPopup").classList.add("show");
+}
+
+function hideMiniCalendar() {
+  document.getElementById("miniCalPopup").classList.remove("show");
+}
 
 // ---------- 自定义确认弹窗 ----------
 
@@ -205,8 +200,58 @@ function initDiary() {
   diaryDate = fmtDateISO(diaryYear, diaryMonth, today.getDate());
   loadDiary(diaryDate);
 
-  document.getElementById("diaryYearBtn").addEventListener("click", toggleYearDropdown);
-  document.getElementById("diaryMonthBtn").addEventListener("click", toggleMonthDropdown);
+  document.getElementById("diaryDateBtn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    var popup = document.getElementById("miniCalPopup");
+    if (popup.classList.contains("show")) {
+      hideMiniCalendar();
+    } else {
+      showMiniCalendar();
+    }
+  });
+
+  document.getElementById("miniCalPrevYear").addEventListener("click", function (e) {
+    e.stopPropagation();
+    _mcYear--;
+    renderMiniCalendar();
+  });
+
+  document.getElementById("miniCalNextYear").addEventListener("click", function (e) {
+    e.stopPropagation();
+    _mcYear++;
+    renderMiniCalendar();
+  });
+
+  document.getElementById("miniCalPrevMonth").addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (_mcMonth === 0) {
+      _mcYear--;
+      _mcMonth = 11;
+    } else {
+      _mcMonth--;
+    }
+    renderMiniCalendar();
+  });
+
+  document.getElementById("miniCalNextMonth").addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (_mcMonth === 11) {
+      _mcYear++;
+      _mcMonth = 0;
+    } else {
+      _mcMonth++;
+    }
+    renderMiniCalendar();
+  });
+
+  // 点击弹窗外部关闭
+  document.addEventListener("click", function (e) {
+    var popup = document.getElementById("miniCalPopup");
+    if (!popup.classList.contains("show")) return;
+    if (!e.target.closest("#miniCalPopup") && !e.target.closest("#diaryDateBtn")) {
+      hideMiniCalendar();
+    }
+  });
 
   const textarea = document.getElementById("diaryTextarea");
   textarea.addEventListener("input", scheduleDiarySave);

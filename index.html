@@ -53,21 +53,31 @@
     <!-- 日记页面 -->
     <div class="page" id="page-diary">
       <div class="diary-header">
-        <div class="diary-picker">
-          <button class="diary-ym-btn" id="diaryYearBtn"></button>
-          <div class="diary-dropdown" id="diaryYearDropdown"></div>
-        </div>
-        <div class="diary-picker">
-          <button class="diary-ym-btn" id="diaryMonthBtn"></button>
-          <div class="diary-dropdown" id="diaryMonthDropdown"></div>
-        </div>
+        <button class="diary-date-btn" id="diaryDateBtn"></button>
         <button class="diary-trash-btn" id="diaryTrashBtn" title="清空日记">🗑️</button>
       </div>
       <div class="diary-paper">
-        <div class="diary-title" id="diaryTitle"></div>
-        <div class="diary-title-line"></div>
         <textarea class="diary-textarea" id="diaryTextarea" placeholder="在这里写下日记..."></textarea>
         <div class="diary-resize-handle" id="diaryResizeHandle"></div>
+      </div>
+      <!-- 迷你日历弹窗 -->
+      <div class="mini-cal-popup" id="miniCalPopup">
+        <div class="mini-cal-header">
+          <div class="mini-cal-nav-row">
+            <button class="mini-cal-arrow" id="miniCalPrevYear">&laquo;</button>
+            <span class="mini-cal-year" id="miniCalYear"></span>
+            <button class="mini-cal-arrow" id="miniCalNextYear">&raquo;</button>
+          </div>
+          <div class="mini-cal-nav-row">
+            <button class="mini-cal-arrow" id="miniCalPrevMonth">&lsaquo;</button>
+            <span class="mini-cal-month" id="miniCalMonth"></span>
+            <button class="mini-cal-arrow" id="miniCalNextMonth">&rsaquo;</button>
+          </div>
+        </div>
+        <div class="mini-cal-weekdays">
+          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+        </div>
+        <div class="mini-cal-grid" id="miniCalGrid"></div>
       </div>
       <div class="voice-area">
         <div class="voice-result" id="diaryVoiceResult"></div>

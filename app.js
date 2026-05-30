@@ -11,6 +11,8 @@ document.addEventListener("click", function (e) {
   if (e.target.closest("#conflictCancel")) return;
   if (e.target.closest("#cloudClose")) return;
   if (e.target.closest(".nav-tab")) return;
+  if (e.target.closest("#diaryDateBtn")) return;
+  if (e.target.closest("#miniCalPopup")) return;
 
   // 点击弹窗遮罩关闭
   if (e.target.closest("#diaryConfirmModal") && !e.target.closest(".modal-box")) {
