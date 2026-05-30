@@ -307,11 +307,11 @@ body::after {
 /* ---------- 事件小圆点 ---------- */
 .day-cell .dot {
   position: absolute;
-  bottom: 4px;
+  bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: #f5d442;
   box-shadow: 0 0 6px rgba(245,212,66,0.5);
@@ -1291,7 +1291,20 @@ body::after {
 /* ========== 浅色主题 ========== */
 body.theme-light,
 body.theme-time-light {
-  background: #f5efe6;
+  background:
+    radial-gradient(ellipse 200px 80px at 15% 20%, rgba(190, 182, 168, 0.25), transparent),
+    radial-gradient(ellipse 140px 60px at 10% 22%, rgba(190, 182, 168, 0.2), transparent),
+    radial-gradient(ellipse 100px 45px at 20% 18%, rgba(190, 182, 168, 0.16), transparent),
+    radial-gradient(ellipse 240px 90px at 78% 40%, rgba(190, 182, 168, 0.25), transparent),
+    radial-gradient(ellipse 150px 60px at 82% 37%, rgba(190, 182, 168, 0.18), transparent),
+    radial-gradient(ellipse 110px 50px at 73% 43%, rgba(190, 182, 168, 0.14), transparent),
+    radial-gradient(ellipse 180px 70px at 22% 72%, rgba(190, 182, 168, 0.22), transparent),
+    radial-gradient(ellipse 120px 50px at 28% 70%, rgba(190, 182, 168, 0.16), transparent),
+    radial-gradient(ellipse 120px 50px at 88% 16%, rgba(190, 182, 168, 0.2), transparent),
+    radial-gradient(ellipse 80px 35px at 90% 14%, rgba(190, 182, 168, 0.14), transparent),
+    radial-gradient(ellipse 160px 65px at 60% 85%, rgba(190, 182, 168, 0.2), transparent),
+    radial-gradient(ellipse 100px 45px at 55% 88%, rgba(190, 182, 168, 0.14), transparent),
+    #f5efe6;
   color: #3a3a3a;
 }
 
@@ -1393,7 +1406,9 @@ body.theme-time-light .month-year,
 body.theme-light .diary-date-btn,
 body.theme-time-light .diary-date-btn,
 body.theme-light .mini-cal-year,
-body.theme-time-light .mini-cal-year {
+body.theme-light .mini-cal-month,
+body.theme-time-light .mini-cal-year,
+body.theme-time-light .mini-cal-month {
   color: #222;
 }
 
