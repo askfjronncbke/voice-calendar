@@ -458,42 +458,44 @@ function executeDelete(parsed) {
 
   // keywords 为空 → 删除该日期全部事件
   if (!parsed.keywords || !parsed.keywords.trim()) {
-    dateEvents.forEach((e) => deleteEvent(e.id));
-    voiceResult.textContent =
-      "已删除：" + fmtDisplay(parsed.date) + " 全部 " + dateEvents.length + " 个事件";
-    speak("已删除，" + fmtDisplay(parsed.date) + "全部" + dateEvents.length + "个事件");
-    renderCalendar();
+    showConfirm("确定删除" + fmtDisplay(parsed.date) + "全部" + dateEvents.length + "个事件吗？", function () {
+      dateEvents.forEach(function (e) { deleteEvent(e.id); });
+      voiceResult.textContent = "已删除：" + fmtDisplay(parsed.date) + " 全部 " + dateEvents.length + " 个事件";
+      speak("已删除，" + fmtDisplay(parsed.date) + "全部" + dateEvents.length + "个事件");
+      renderCalendar();
+    });
     return;
   }
 
-  // 单个事件直接删除
+  // 单个事件 → 确认后删除
   if (dateEvents.length === 1) {
-    const ev = dateEvents[0];
-    deleteEvent(ev.id);
-    voiceResult.textContent = "已删除：" + ev.date + " " + ev.title;
-    speak("已删除，" + ev.title);
-    renderCalendar();
-    selectedDate = parsed.date;
-    renderCalendar();
-    showEventPanel(parsed.date);
+    var ev = dateEvents[0];
+    showConfirm("确定删除「" + ev.title + "」吗？", function () {
+      deleteEvent(ev.id);
+      voiceResult.textContent = "已删除：" + ev.date + " " + ev.title;
+      speak("已删除，" + ev.title);
+      selectedDate = parsed.date;
+      renderCalendar();
+      showEventPanel(parsed.date);
+    });
     return;
   }
 
   // 多个事件，关键词模糊匹配
-  const matches = dateEvents.filter((e) => e.title.includes(parsed.keywords));
+  var matches = dateEvents.filter(function (e) { return e.title.includes(parsed.keywords); });
   if (matches.length > 0) {
-    const target = matches[matches.length - 1];
-    deleteEvent(target.id);
-    voiceResult.textContent = "已删除：" + target.date + " " + target.title;
-    speak("已删除，" + target.title);
-    renderCalendar();
-    selectedDate = parsed.date;
-    renderCalendar();
-    showEventPanel(parsed.date);
+    var target = matches[matches.length - 1];
+    showConfirm("确定删除「" + target.title + "」吗？", function () {
+      deleteEvent(target.id);
+      voiceResult.textContent = "已删除：" + target.date + " " + target.title;
+      speak("已删除，" + target.title);
+      selectedDate = parsed.date;
+      renderCalendar();
+      showEventPanel(parsed.date);
+    });
   } else {
     voiceResult.textContent = "";
-    voiceError.textContent =
-      parsed.date + " 未找到包含「" + parsed.keywords + "」的事件";
+    voiceError.textContent = parsed.date + " 未找到包含「" + parsed.keywords + "」的事件";
     speak("未找到匹配的事件");
     renderCalendar();
   }
