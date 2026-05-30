@@ -303,15 +303,18 @@ body::after {
     0 0 0 3px rgba(255,255,255,0.2) !important;
 }
 
-/* ---------- 事件小圆点（黄色）---------- */
+/* ---------- 事件小圆点 ---------- */
 .day-cell .dot {
   position: absolute;
   bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: #f5d442;
-  box-shadow: 0 0 4px rgba(245,212,66,0.5);
+  box-shadow: 0 0 6px rgba(245,212,66,0.5);
+  pointer-events: none;
 }
 
 /* ---------- 事件列表面板 ---------- */
