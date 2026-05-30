@@ -19,6 +19,10 @@ document.addEventListener("click", function (e) {
     document.getElementById("diaryConfirmModal").classList.remove("show");
     return;
   }
+  if (e.target.closest("#helpModal") && !e.target.closest(".modal-box")) {
+    document.getElementById("helpModal").classList.remove("show");
+    return;
+  }
 
   var vr = document.getElementById("voiceResult");
   var ve = document.getElementById("voiceError");

@@ -89,9 +89,12 @@
         <div class="settings-card">
           <div class="settings-row">
             <span class="settings-label">发音人</span>
-            <div class="settings-option-group" data-key="voice">
-              <button class="settings-option-btn active" data-value="female">女声</button>
-              <button class="settings-option-btn" data-value="male">男声</button>
+            <div class="settings-select" data-key="voice">
+              <button class="settings-select-btn" id="voiceSelectBtn">女声</button>
+              <div class="settings-select-dropdown">
+                <div class="settings-select-item active" data-value="female">女声</div>
+                <div class="settings-select-item" data-value="male">男声</div>
+              </div>
             </div>
           </div>
           <div class="settings-row">
@@ -109,10 +112,13 @@
         <div class="settings-card">
           <div class="settings-row">
             <span class="settings-label">主题模式</span>
-            <div class="settings-option-group" data-key="theme">
-              <button class="settings-option-btn active" data-value="dark">深色</button>
-              <button class="settings-option-btn" data-value="light">浅色</button>
-              <button class="settings-option-btn" data-value="system">跟随系统</button>
+            <div class="settings-select" data-key="theme">
+              <button class="settings-select-btn" id="themeSelectBtn">深色</button>
+              <div class="settings-select-dropdown">
+                <div class="settings-select-item active" data-value="dark">深色</div>
+                <div class="settings-select-item" data-value="light">浅色</div>
+                <div class="settings-select-item" data-value="time">跟随时间</div>
+              </div>
             </div>
           </div>
           <div class="settings-row">
@@ -128,7 +134,7 @@
       <div class="settings-section">
         <div class="settings-section-title">帮助</div>
         <div class="settings-card">
-          <button class="settings-help-btn" id="settingsHelpBtn">语音播报支持指令</button>
+          <button class="settings-help-btn" id="settingsHelpBtn">查看支持的语音指令</button>
         </div>
       </div>
     </div>
@@ -141,6 +147,16 @@
         <line x1="8" y1="23" x2="16" y2="23"/>
       </svg>
     </button>
+  </div>
+
+  <!-- 帮助指令弹窗 -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal-box">
+      <div class="modal-msg" id="helpModalMsg"></div>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-confirm" id="helpModalClose">知道了</button>
+      </div>
+    </div>
   </div>
 
   <!-- 自定义确认弹窗 -->

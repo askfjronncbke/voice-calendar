@@ -1122,6 +1122,7 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
+  flex-wrap: nowrap;
 }
 
 .settings-row + .settings-row {
@@ -1131,36 +1132,88 @@ body::after {
 .settings-label {
   font-size: 17px;
   color: #ddd;
+  flex-shrink: 0;
+  margin-right: 16px;
 }
 
-/* 选项按钮组 */
-.settings-option-group {
-  display: flex;
-  gap: 6px;
+/* 下拉选择 */
+.settings-select {
+  position: relative;
+  flex-shrink: 0;
 }
 
-.settings-option-btn {
-  height: 34px;
-  padding: 0 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.settings-select-btn {
+  font-size: 15px;
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #999;
-  font-size: 14px;
+  padding: 7px 32px 7px 14px;
   cursor: pointer;
   transition: all 0.2s;
   font-family: inherit;
+  min-width: 100px;
+  text-align: left;
+  position: relative;
 }
 
-.settings-option-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ccc;
+.settings-select-btn::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #888;
 }
 
-.settings-option-btn.active {
-  background: rgba(233, 69, 96, 0.2);
-  border-color: rgba(233, 69, 96, 0.4);
+.settings-select-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #eee;
+}
+
+.settings-select-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  background: rgba(22, 22, 44, 0.97);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  min-width: 100px;
+  z-index: 50;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.settings-select-dropdown.show {
+  display: block;
+}
+
+.settings-select-item {
+  padding: 10px 18px;
+  font-size: 15px;
+  color: #999;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.settings-select-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.settings-select-item.active {
   color: #e94560;
+  background: rgba(233, 69, 96, 0.08);
 }
 
 /* 开关 */
@@ -1232,99 +1285,221 @@ body::after {
 }
 
 /* ========== 浅色主题 ========== */
-.theme-light,
-.theme-system {
-  /* system 默认按深色渲染，匹配到浅色时覆盖 */
+body.theme-light,
+body.theme-time-light {
+  background: #f5efe6;
+  color: #3a3a3a;
 }
 
-body.theme-light {
-  background: #f0f0f5;
-  color: #333;
+body.theme-light .app::before,
+body.theme-time-light .app::before {
+  opacity: 0.08;
 }
 
-body.theme-light .app::before {
-  opacity: 0.15;
+/* 日期格子 */
+body.theme-light .day-cell,
+body.theme-time-light .day-cell {
+  color: #555;
 }
 
-body.theme-light .month-year,
-body.theme-light .diary-date-btn,
-body.theme-light .mini-cal-year {
+body.theme-light .day-cell.other-month,
+body.theme-time-light .day-cell.other-month {
+  color: #c8c0b8;
+}
+
+/* 太阳：浅色模式今日日期（橙黄光晕） */
+@keyframes sunGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(255, 160, 20, 0.7),
+      0 0 25px rgba(255, 140, 10, 0.45),
+      0 0 45px rgba(255, 120, 5, 0.25),
+      0 0 70px rgba(255, 100, 0, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(255, 160, 20, 0.9),
+      0 0 40px rgba(255, 140, 10, 0.6),
+      0 0 65px rgba(255, 120, 5, 0.38),
+      0 0 95px rgba(255, 100, 0, 0.2);
+  }
+}
+
+body.theme-light .day-cell.today,
+body.theme-time-light .day-cell.today {
+  background: radial-gradient(circle at 40% 35%, #fff8e0, #ffb833);
+  color: #5a3e08;
+  font-weight: 700;
+  animation: sunGlow 3s ease-in-out infinite;
+}
+
+body.theme-light .day-cell.today.selected,
+body.theme-time-light .day-cell.today.selected {
+  background: radial-gradient(circle at 40% 35%, #fff8e0, #ffb833);
+  color: #5a3e08;
+  animation: sunGlow 3s ease-in-out infinite;
+  box-shadow:
+    0 0 10px rgba(255, 160, 20, 0.7),
+    0 0 25px rgba(255, 140, 10, 0.45),
+    0 0 45px rgba(255, 120, 5, 0.25),
+    0 0 0 3px rgba(255, 140, 20, 0.25) !important;
+}
+
+/* 云朵 */
+body.theme-light .cloud-greeting,
+body.theme-time-light .cloud-greeting {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(120, 160, 220, 0.3);
+  box-shadow:
+    0 0 30px rgba(160, 190, 230, 0.15),
+    0 8px 40px rgba(0, 0, 0, 0.12);
+}
+
+body.theme-light .cloud-text,
+body.theme-time-light .cloud-text {
   color: #222;
 }
 
-body.theme-light .diary-date-btn {
+body.theme-light .cloud-close,
+body.theme-time-light .cloud-close {
+  color: #666;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.theme-light .cloud-close:hover,
+body.theme-time-light .cloud-close:hover {
+  background: rgba(233, 69, 96, 0.2);
+  color: #e94560;
+}
+
+body.theme-light .cloud-event-item,
+body.theme-time-light .cloud-event-item {
+  color: #444;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+body.theme-light .cloud-event-empty,
+body.theme-time-light .cloud-event-empty {
+  color: #888;
+}
+
+/* 通用浅色覆盖 */
+body.theme-light .month-year,
+body.theme-time-light .month-year,
+body.theme-light .diary-date-btn,
+body.theme-time-light .diary-date-btn,
+body.theme-light .mini-cal-year,
+body.theme-time-light .mini-cal-year {
+  color: #222;
+}
+
+body.theme-light .diary-date-btn,
+body.theme-time-light .diary-date-btn {
   background: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-body.theme-light .diary-date-btn:hover {
+body.theme-light .diary-date-btn:hover,
+body.theme-time-light .diary-date-btn:hover {
   background: rgba(0, 0, 0, 0.08);
 }
 
-body.theme-light .settings-card {
+body.theme-light .settings-card,
+body.theme-time-light .settings-card {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.08);
 }
 
-body.theme-light .settings-row + .settings-row {
+body.theme-light .settings-row + .settings-row,
+body.theme-time-light .settings-row + .settings-row {
   border-top-color: rgba(0, 0, 0, 0.06);
 }
 
-body.theme-light .settings-label {
-  color: #333;
+body.theme-light .settings-label,
+body.theme-time-light .settings-label {
+  color: #3a3a3a;
 }
 
-body.theme-light .settings-section-title {
+body.theme-light .settings-section-title,
+body.theme-time-light .settings-section-title {
   color: #999;
 }
 
-body.theme-light .settings-option-btn {
+body.theme-light .settings-select-btn,
+body.theme-time-light .settings-select-btn {
   background: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.1);
-  color: #777;
-}
-
-body.theme-light .settings-option-btn:hover {
-  background: rgba(0, 0, 0, 0.08);
   color: #555;
 }
 
-body.theme-light .settings-option-btn.active {
-  background: rgba(233, 69, 96, 0.15);
-  color: #d63850;
+body.theme-light .settings-select-btn:hover,
+body.theme-time-light .settings-select-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
 }
 
-body.theme-light .settings-toggle-slider {
+body.theme-light .settings-select-dropdown,
+body.theme-time-light .settings-select-dropdown {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .settings-select-item,
+body.theme-time-light .settings-select-item {
+  color: #777;
+}
+
+body.theme-light .settings-select-item:hover,
+body.theme-time-light .settings-select-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+
+body.theme-light .settings-select-item.active,
+body.theme-time-light .settings-select-item.active {
+  color: #e94560;
+  background: rgba(233, 69, 96, 0.1);
+}
+
+body.theme-light .settings-toggle-slider,
+body.theme-time-light .settings-toggle-slider {
   background: rgba(0, 0, 0, 0.12);
 }
 
-body.theme-light .nav-tab {
+body.theme-light .nav-tab,
+body.theme-time-light .nav-tab {
   color: #999;
 }
 
-body.theme-light .nav-tab.active {
+body.theme-light .nav-tab.active,
+body.theme-time-light .nav-tab.active {
   color: #e94560;
 }
 
-body.theme-light .bottom-nav {
+body.theme-light .bottom-nav,
+body.theme-time-light .bottom-nav {
   background: rgba(255, 255, 255, 0.85);
   border-top-color: rgba(0, 0, 0, 0.08);
 }
 
-body.theme-light .diary-paper {
+body.theme-light .diary-paper,
+body.theme-time-light .diary-paper {
   background: rgba(0, 0, 0, 0.02);
   border-color: rgba(0, 0, 0, 0.08);
 }
 
-body.theme-light .diary-textarea {
-  color: #333;
+body.theme-light .diary-textarea,
+body.theme-time-light .diary-textarea {
+  color: #3a3a3a;
 }
 
-body.theme-light .diary-textarea::placeholder {
+body.theme-light .diary-textarea::placeholder,
+body.theme-time-light .diary-textarea::placeholder {
   color: #aaa;
 }
 
-body.theme-light .diary-paper::before {
+body.theme-light .diary-paper::before,
+body.theme-time-light .diary-paper::before {
   background: repeating-linear-gradient(
     to bottom,
     transparent,
@@ -1334,215 +1509,143 @@ body.theme-light .diary-paper::before {
   );
 }
 
-body.theme-light .mini-cal-popup {
+body.theme-light .mini-cal-popup,
+body.theme-time-light .mini-cal-popup {
   background: rgba(255, 255, 255, 0.97);
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-body.theme-light .mini-cal-cell {
+body.theme-light .mini-cal-cell,
+body.theme-time-light .mini-cal-cell {
   color: #555;
 }
 
-body.theme-light .mini-cal-weekdays {
+body.theme-light .mini-cal-cell.today,
+body.theme-time-light .mini-cal-cell.today {
+  background: radial-gradient(circle at 40% 35%, #fff8e0, #ffb833);
+  color: #5a3e08;
+  box-shadow: 0 0 10px rgba(255, 160, 20, 0.5);
+}
+
+body.theme-light .mini-cal-weekdays,
+body.theme-time-light .mini-cal-weekdays {
   color: #999;
   border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
-body.theme-light .event-item {
+body.theme-light .event-item,
+body.theme-time-light .event-item {
   background: rgba(0, 0, 0, 0.03);
 }
 
-body.theme-light .event-title {
-  color: #333;
+body.theme-light .event-title,
+body.theme-time-light .event-title {
+  color: #3a3a3a;
 }
 
-body.theme-light .voice-result {
+body.theme-light .voice-result,
+body.theme-time-light .voice-result {
   background: rgba(0, 0, 0, 0.03);
   color: #555;
 }
 
-/* 系统主题匹配浅色 */
-@media (prefers-color-scheme: light) {
-  body.theme-system {
-    background: #f0f0f5;
-    color: #333;
-  }
+body.theme-light .weekdays,
+body.theme-time-light .weekdays {
+  color: #999;
+}
 
-  body.theme-system .app::before {
-    opacity: 0.15;
-  }
-
-  body.theme-system .month-year,
-  body.theme-system .diary-date-btn,
-  body.theme-system .mini-cal-year {
-    color: #222;
-  }
-
-  body.theme-system .diary-date-btn {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.1);
-  }
-
-  body.theme-system .diary-date-btn:hover {
-    background: rgba(0, 0, 0, 0.08);
-  }
-
-  body.theme-system .settings-card {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.08);
-  }
-
-  body.theme-system .settings-row + .settings-row {
-    border-top-color: rgba(0, 0, 0, 0.06);
-  }
-
-  body.theme-system .settings-label {
-    color: #333;
-  }
-
-  body.theme-system .settings-section-title {
-    color: #999;
-  }
-
-  body.theme-system .settings-option-btn {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #777;
-  }
-
-  body.theme-system .settings-option-btn:hover {
-    background: rgba(0, 0, 0, 0.08);
-    color: #555;
-  }
-
-  body.theme-system .settings-option-btn.active {
-    background: rgba(233, 69, 96, 0.15);
-    color: #d63850;
-  }
-
-  body.theme-system .settings-toggle-slider {
-    background: rgba(0, 0, 0, 0.12);
-  }
-
-  body.theme-system .nav-tab {
-    color: #999;
-  }
-
-  body.theme-system .nav-tab.active {
-    color: #e94560;
-  }
-
-  body.theme-system .bottom-nav {
-    background: rgba(255, 255, 255, 0.85);
-    border-top-color: rgba(0, 0, 0, 0.08);
-  }
-
-  body.theme-system .diary-paper {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.08);
-  }
-
-  body.theme-system .diary-textarea {
-    color: #333;
-  }
-
-  body.theme-system .diary-textarea::placeholder {
-    color: #aaa;
-  }
-
-  body.theme-system .diary-paper::before {
-    background: repeating-linear-gradient(
-      to bottom,
-      transparent,
-      transparent 31px,
-      rgba(0, 0, 0, 0.06) 31px,
-      rgba(0, 0, 0, 0.06) 32px
-    );
-  }
-
-  body.theme-system .mini-cal-popup {
-    background: rgba(255, 255, 255, 0.97);
-    border-color: rgba(0, 0, 0, 0.1);
-  }
-
-  body.theme-system .mini-cal-cell {
-    color: #555;
-  }
-
-  body.theme-system .mini-cal-weekdays {
-    color: #999;
-    border-bottom-color: rgba(0, 0, 0, 0.08);
-  }
-
-  body.theme-system .event-item {
-    background: rgba(0, 0, 0, 0.03);
-  }
-
-  body.theme-system .event-title {
-    color: #333;
-  }
-
-  body.theme-system .voice-result {
-    background: rgba(0, 0, 0, 0.03);
-    color: #555;
-  }
+body.theme-light .nav-btn,
+body.theme-time-light .nav-btn {
+  color: #777;
 }
 
 /* ========== 大字号模式 ========== */
 body.large-font {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 body.large-font .month-year {
-  font-size: 30px;
+  font-size: 34px;
 }
 
 body.large-font .day-cell {
-  font-size: 21px;
+  font-size: 24px;
 }
 
 body.large-font .diary-date-btn {
-  font-size: 21px;
+  font-size: 22px;
 }
 
 body.large-font .diary-textarea {
-  font-size: 20px;
-  line-height: 38px;
+  font-size: 22px;
+  line-height: 42px;
+}
+
+body.large-font .diary-paper::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 35px,
+    rgba(255, 255, 255, 0.04) 35px,
+    rgba(255, 255, 255, 0.04) 36px
+  );
 }
 
 body.large-font .settings-label {
-  font-size: 20px;
+  font-size: 22px;
 }
 
-body.large-font .settings-option-btn {
-  font-size: 16px;
-  height: 38px;
-  padding: 0 18px;
+body.large-font .settings-select-btn {
+  font-size: 17px;
+  padding: 9px 36px 9px 16px;
+}
+
+body.large-font .settings-select-item {
+  font-size: 17px;
+  padding: 12px 20px;
 }
 
 body.large-font .settings-section-title {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 body.large-font .settings-help-btn {
-  font-size: 20px;
-  height: 54px;
+  font-size: 22px;
+  height: 56px;
 }
 
 body.large-font .event-title {
-  font-size: 19px;
+  font-size: 21px;
 }
 
 body.large-font .event-time {
-  font-size: 17px;
+  font-size: 19px;
 }
 
 body.large-font .nav-label {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 body.large-font .weekdays {
-  font-size: 17px;
+  font-size: 19px;
+}
+
+body.large-font .mic-btn {
+  width: 88px;
+  height: 88px;
+}
+
+body.large-font .mic-btn svg {
+  width: 34px;
+  height: 34px;
+}
+
+body.large-font .nav-icon {
+  font-size: 26px;
+}
+
+body.large-font .event-panel-date {
+  font-size: 19px;
 }
 
 /* ---------- 底部导航栏 ---------- */
