@@ -307,6 +307,7 @@ function initSpeech() {
 
   micBtn.addEventListener("pointerdown", function (e) {
     _suppressClick = false;
+    micBtn.setPointerCapture(e.pointerId);
     var rect = micBtn.getBoundingClientRect();
     _dragOffsetX = e.clientX - rect.left;
     _dragOffsetY = e.clientY - rect.top;
@@ -314,7 +315,6 @@ function initSpeech() {
     _dragTimer = setTimeout(function () {
       _dragActive = true;
       _suppressClick = true;
-      micBtn.setPointerCapture(e.pointerId);
       micBtn.classList.add("dragging");
       micBtn.style.position = "fixed";
       micBtn.style.left = (e.clientX - _dragOffsetX) + "px";
