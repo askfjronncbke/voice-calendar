@@ -1291,18 +1291,11 @@ body::after {
 body.theme-light,
 body.theme-time-light {
   background:
-    radial-gradient(ellipse 200px 80px at 15% 20%, rgba(190, 182, 168, 0.25), transparent),
-    radial-gradient(ellipse 140px 60px at 10% 22%, rgba(190, 182, 168, 0.2), transparent),
-    radial-gradient(ellipse 100px 45px at 20% 18%, rgba(190, 182, 168, 0.16), transparent),
-    radial-gradient(ellipse 240px 90px at 78% 40%, rgba(190, 182, 168, 0.25), transparent),
-    radial-gradient(ellipse 150px 60px at 82% 37%, rgba(190, 182, 168, 0.18), transparent),
-    radial-gradient(ellipse 110px 50px at 73% 43%, rgba(190, 182, 168, 0.14), transparent),
-    radial-gradient(ellipse 180px 70px at 22% 72%, rgba(190, 182, 168, 0.22), transparent),
-    radial-gradient(ellipse 120px 50px at 28% 70%, rgba(190, 182, 168, 0.16), transparent),
-    radial-gradient(ellipse 120px 50px at 88% 16%, rgba(190, 182, 168, 0.2), transparent),
-    radial-gradient(ellipse 80px 35px at 90% 14%, rgba(190, 182, 168, 0.14), transparent),
-    radial-gradient(ellipse 160px 65px at 60% 85%, rgba(190, 182, 168, 0.2), transparent),
-    radial-gradient(ellipse 100px 45px at 55% 88%, rgba(190, 182, 168, 0.14), transparent),
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDAgNTAiPjxwYXRoIGQ9Ik0yNiA0MiBDMTAgNDIgMyAzMiA4IDIyIEMxIDEwIDEyIDMgMjIgMTAgQzMyIC0xIDQ4IDAgNTYgMTAgQzcyIDUgODAgMTUgNzYgMjYgQzg4IDI4IDg2IDQyIDY4IDQyIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzhCNkI0QSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjM1Ii8+PC9zdmc+") no-repeat 12% 16% / 130px auto,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgNTYiPjxwYXRoIGQ9Ik0yOCA0OCBDMTIgNDggNCAzNiAxMCAyNCBDMiAxMCAxNCAyIDI0IDggQzM2IC0zIDU2IC0yIDY2IDEwIEM4MiAzIDkwIDE2IDg2IDI4IEM5NiAzMiA5NCA0OCA3NiA0OCBaIiBmaWxsPSJub25lIiBzdHJva2U9IiM4QjZCNEEiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC4zIi8+PC9zdmc+") no-repeat 72% 35% / 150px auto,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgNDQiPjxwYXRoIGQ9Ik0yMCAzNiBDNiAzNiAxIDI2IDYgMTggQzAgNiAxMCAxIDE4IDcgQzI4IC0yIDQyIDAgNDggMTAgQzYwIDYgNjQgMTYgNjAgMjQgQzY4IDI4IDY2IDM2IDUyIDM2IFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzhCNkI0QSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjM1Ii8+PC9zdmc+") no-repeat 18% 68% / 110px auto,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNzAgNTgiPjxwYXRoIGQ9Ik0zMCA0OCBDMTQgNDggNSAzNiAxMCAyNCBDMiA4IDE2IDAgMjYgOCBDNDAgLTQgNjAgLTIgNzAgMTAgQzg4IDIgOTYgMTYgOTIgMjggQzEwNCAzMiAxMDIgNTAgODIgNDggWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjOEI2QjRBIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuMjgiLz48L3N2Zz4=") no-repeat 78% 76% / 155px auto,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgNDAiPjxwYXRoIGQ9Ik0xNiAzMiBDNSAzMiAwIDI0IDQgMTYgQy0xIDYgOCAxIDE1IDYgQzI0IC0xIDM1IDEgNDAgMTAgQzUwIDYgNTQgMTQgNTAgMjAgQzU2IDI0IDU0IDMyIDQyIDMyIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzhCNkI0QSIgc3Ryb2tlLXdpZHRoPSIwLjgiIG9wYWNpdHk9IjAuMyIvPjwvc3ZnPg==") no-repeat 62% 55% / 95px auto,
     #f5efe6;
   color: #3a3a3a;
 }
