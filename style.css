@@ -1095,24 +1095,454 @@ body::after {
   pointer-events: none;
 }
 
-/* ---------- 占位页面 ---------- */
-.placeholder-page {
+/* ---------- 设置页面 ---------- */
+.settings-section {
+  margin-bottom: 28px;
+}
+
+.settings-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+.settings-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.settings-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 50vh;
-  gap: 20px;
+  justify-content: space-between;
+  padding: 16px 20px;
 }
 
-.placeholder-icon {
-  font-size: 56px;
-  opacity: 0.4;
+.settings-row + .settings-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.placeholder-text {
+.settings-label {
   font-size: 17px;
-  color: #666;
+  color: #ddd;
+}
+
+/* 选项按钮组 */
+.settings-option-group {
+  display: flex;
+  gap: 6px;
+}
+
+.settings-option-btn {
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #999;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.settings-option-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+}
+
+.settings-option-btn.active {
+  background: rgba(233, 69, 96, 0.2);
+  border-color: rgba(233, 69, 96, 0.4);
+  color: #e94560;
+}
+
+/* 开关 */
+.settings-toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.settings-toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+
+.settings-toggle-slider::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.25s;
+}
+
+.settings-toggle-input:checked + .settings-toggle-slider {
+  background: #e94560;
+}
+
+.settings-toggle-input:checked + .settings-toggle-slider::after {
+  transform: translateX(20px);
+}
+
+/* 帮助按钮 */
+.settings-help-btn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(233, 69, 96, 0.15);
+  color: #e94560;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  margin: 4px 0;
+}
+
+.settings-help-btn:hover {
+  background: rgba(233, 69, 96, 0.25);
+}
+
+.settings-help-btn:active {
+  transform: scale(0.97);
+}
+
+/* ========== 浅色主题 ========== */
+.theme-light,
+.theme-system {
+  /* system 默认按深色渲染，匹配到浅色时覆盖 */
+}
+
+body.theme-light {
+  background: #f0f0f5;
+  color: #333;
+}
+
+body.theme-light .app::before {
+  opacity: 0.15;
+}
+
+body.theme-light .month-year,
+body.theme-light .diary-date-btn,
+body.theme-light .mini-cal-year {
+  color: #222;
+}
+
+body.theme-light .diary-date-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .diary-date-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .settings-card {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .settings-row + .settings-row {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light .settings-label {
+  color: #333;
+}
+
+body.theme-light .settings-section-title {
+  color: #999;
+}
+
+body.theme-light .settings-option-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #777;
+}
+
+body.theme-light .settings-option-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #555;
+}
+
+body.theme-light .settings-option-btn.active {
+  background: rgba(233, 69, 96, 0.15);
+  color: #d63850;
+}
+
+body.theme-light .settings-toggle-slider {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+body.theme-light .nav-tab {
+  color: #999;
+}
+
+body.theme-light .nav-tab.active {
+  color: #e94560;
+}
+
+body.theme-light .bottom-nav {
+  background: rgba(255, 255, 255, 0.85);
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .diary-paper {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .diary-textarea {
+  color: #333;
+}
+
+body.theme-light .diary-textarea::placeholder {
+  color: #aaa;
+}
+
+body.theme-light .diary-paper::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 31px,
+    rgba(0, 0, 0, 0.06) 31px,
+    rgba(0, 0, 0, 0.06) 32px
+  );
+}
+
+body.theme-light .mini-cal-popup {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .mini-cal-cell {
+  color: #555;
+}
+
+body.theme-light .mini-cal-weekdays {
+  color: #999;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .event-item {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.theme-light .event-title {
+  color: #333;
+}
+
+body.theme-light .voice-result {
+  background: rgba(0, 0, 0, 0.03);
+  color: #555;
+}
+
+/* 系统主题匹配浅色 */
+@media (prefers-color-scheme: light) {
+  body.theme-system {
+    background: #f0f0f5;
+    color: #333;
+  }
+
+  body.theme-system .app::before {
+    opacity: 0.15;
+  }
+
+  body.theme-system .month-year,
+  body.theme-system .diary-date-btn,
+  body.theme-system .mini-cal-year {
+    color: #222;
+  }
+
+  body.theme-system .diary-date-btn {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  body.theme-system .diary-date-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  body.theme-system .settings-card {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  body.theme-system .settings-row + .settings-row {
+    border-top-color: rgba(0, 0, 0, 0.06);
+  }
+
+  body.theme-system .settings-label {
+    color: #333;
+  }
+
+  body.theme-system .settings-section-title {
+    color: #999;
+  }
+
+  body.theme-system .settings-option-btn {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #777;
+  }
+
+  body.theme-system .settings-option-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #555;
+  }
+
+  body.theme-system .settings-option-btn.active {
+    background: rgba(233, 69, 96, 0.15);
+    color: #d63850;
+  }
+
+  body.theme-system .settings-toggle-slider {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  body.theme-system .nav-tab {
+    color: #999;
+  }
+
+  body.theme-system .nav-tab.active {
+    color: #e94560;
+  }
+
+  body.theme-system .bottom-nav {
+    background: rgba(255, 255, 255, 0.85);
+    border-top-color: rgba(0, 0, 0, 0.08);
+  }
+
+  body.theme-system .diary-paper {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  body.theme-system .diary-textarea {
+    color: #333;
+  }
+
+  body.theme-system .diary-textarea::placeholder {
+    color: #aaa;
+  }
+
+  body.theme-system .diary-paper::before {
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 31px,
+      rgba(0, 0, 0, 0.06) 31px,
+      rgba(0, 0, 0, 0.06) 32px
+    );
+  }
+
+  body.theme-system .mini-cal-popup {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  body.theme-system .mini-cal-cell {
+    color: #555;
+  }
+
+  body.theme-system .mini-cal-weekdays {
+    color: #999;
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+  }
+
+  body.theme-system .event-item {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  body.theme-system .event-title {
+    color: #333;
+  }
+
+  body.theme-system .voice-result {
+    background: rgba(0, 0, 0, 0.03);
+    color: #555;
+  }
+}
+
+/* ========== 大字号模式 ========== */
+body.large-font {
+  font-size: 18px;
+}
+
+body.large-font .month-year {
+  font-size: 30px;
+}
+
+body.large-font .day-cell {
+  font-size: 21px;
+}
+
+body.large-font .diary-date-btn {
+  font-size: 21px;
+}
+
+body.large-font .diary-textarea {
+  font-size: 20px;
+  line-height: 38px;
+}
+
+body.large-font .settings-label {
+  font-size: 20px;
+}
+
+body.large-font .settings-option-btn {
+  font-size: 16px;
+  height: 38px;
+  padding: 0 18px;
+}
+
+body.large-font .settings-section-title {
+  font-size: 16px;
+}
+
+body.large-font .settings-help-btn {
+  font-size: 20px;
+  height: 54px;
+}
+
+body.large-font .event-title {
+  font-size: 19px;
+}
+
+body.large-font .event-time {
+  font-size: 17px;
+}
+
+body.large-font .nav-label {
+  font-size: 14px;
+}
+
+body.large-font .weekdays {
+  font-size: 17px;
 }
 
 /* ---------- 底部导航栏 ---------- */

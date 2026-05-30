@@ -39,12 +39,17 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(showCloudGreeting, 600);
   }
 
+  initSettings();
+
   // 底部导航切换
   var navTabs = document.querySelectorAll(".nav-tab");
   navTabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
       var page = this.getAttribute("data-page");
       switchPage(page);
+      if (page === "settings") {
+        refreshSettingsUI();
+      }
     });
   });
 });

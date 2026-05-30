@@ -84,9 +84,52 @@
 
     <!-- 设置页面 -->
     <div class="page" id="page-settings">
-      <div class="placeholder-page">
-        <span class="placeholder-icon">⚙️</span>
-        <span class="placeholder-text">设置功能即将上线</span>
+      <div class="settings-section">
+        <div class="settings-section-title">声音设置</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <span class="settings-label">发音人</span>
+            <div class="settings-option-group" data-key="voice">
+              <button class="settings-option-btn active" data-value="female">女声</button>
+              <button class="settings-option-btn" data-value="male">男声</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">语音播报</span>
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" data-key="ttsEnabled" checked>
+              <span class="settings-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">显示设置</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <span class="settings-label">主题模式</span>
+            <div class="settings-option-group" data-key="theme">
+              <button class="settings-option-btn active" data-value="dark">深色</button>
+              <button class="settings-option-btn" data-value="light">浅色</button>
+              <button class="settings-option-btn" data-value="system">跟随系统</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">大字号</span>
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" data-key="largeFont">
+              <span class="settings-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">帮助</div>
+        <div class="settings-card">
+          <button class="settings-help-btn" id="settingsHelpBtn">语音播报支持指令</button>
+        </div>
       </div>
     </div>
     <!-- 共享麦克风按钮 -->
@@ -134,6 +177,7 @@
   <script src="parser.js"></script>
   <script src="speech.js"></script>
   <script src="cloud.js"></script>
+  <script src="settings.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

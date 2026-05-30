@@ -17,6 +17,10 @@ const SPEAKERS = {
 
 let ttsCurrentVoice = "female"; // "female" | "male"
 let ttsAudioEl = null;
+let ttsEnabled = true;
+
+function setTTSEnabled(val) { ttsEnabled = !!val; }
+function isTTSEnabled() { return ttsEnabled; }
 
 // ---------- 鉴权（复用讯飞 HMAC-SHA256 签名） ----------
 
@@ -172,6 +176,7 @@ function encodeText(text) {
 // ---------- 合成与播放 ----------
 
 async function speak(text) {
+  if (!ttsEnabled) return;
   if (!text || !text.trim()) return;
 
   try {
