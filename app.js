@@ -10,6 +10,7 @@ document.addEventListener("click", function (e) {
   if (e.target.closest("#conflictConfirm")) return;
   if (e.target.closest("#conflictCancel")) return;
   if (e.target.closest("#cloudClose")) return;
+  if (e.target.closest(".nav-tab")) return;
 
   var vr = document.getElementById("voiceResult");
   var ve = document.getElementById("voiceError");
@@ -29,4 +30,28 @@ document.addEventListener("DOMContentLoaded", function () {
     _greeted = true;
     setTimeout(showCloudGreeting, 600);
   }
+
+  // 底部导航切换
+  var navTabs = document.querySelectorAll(".nav-tab");
+  navTabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      var page = this.getAttribute("data-page");
+      switchPage(page);
+    });
+  });
 });
+
+function switchPage(name) {
+  document.querySelectorAll(".page").forEach(function (p) {
+    p.classList.remove("active");
+  });
+  document.querySelectorAll(".nav-tab").forEach(function (t) {
+    t.classList.remove("active");
+  });
+
+  var pageEl = document.getElementById("page-" + name);
+  if (pageEl) pageEl.classList.add("active");
+
+  var tabEl = document.querySelector('.nav-tab[data-page="' + name + '"]');
+  if (tabEl) tabEl.classList.add("active");
+}

@@ -15,52 +15,83 @@
   </div>
 
   <div class="app">
-    <!-- 月份导航 -->
-    <div class="calendar-header">
-      <button class="nav-btn" id="prevMonth">&lt;</button>
-      <span class="month-year" id="monthYear"></span>
-      <button class="nav-btn" id="nextMonth">&gt;</button>
-    </div>
-
-    <!-- 星期表头 -->
-    <div class="weekdays">
-      <span>日</span><span>一</span><span>二</span><span>三</span>
-      <span>四</span><span>五</span><span>六</span>
-    </div>
-
-    <!-- 日期格子 -->
-    <div class="days-grid" id="daysGrid"></div>
-
-    <!-- 当天事件列表 -->
-    <div class="event-panel" id="eventPanel">
-      <div class="event-panel-header">
-        <span class="event-panel-date" id="eventPanelDate"></span>
+    <!-- 日历页面 -->
+    <div class="page active" id="page-calendar">
+      <div class="calendar-header">
+        <button class="nav-btn" id="prevMonth">&lt;</button>
+        <span class="month-year" id="monthYear"></span>
+        <button class="nav-btn" id="nextMonth">&gt;</button>
       </div>
-      <div class="event-list" id="eventList"></div>
-    </div>
 
-    <!-- 语音区域 -->
-    <div class="voice-area">
-      <div class="voice-result" id="voiceResult"></div>
-      <div class="voice-error" id="voiceError"></div>
-      <div class="conflict-prompt" id="conflictPrompt">
-        <div class="conflict-msg" id="conflictMsg"></div>
-        <div class="conflict-btns">
-          <button class="conflict-confirm" id="conflictConfirm">确认添加</button>
-          <button class="conflict-cancel" id="conflictCancel">取消</button>
+      <div class="weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span>
+        <span>四</span><span>五</span><span>六</span>
+      </div>
+
+      <div class="days-grid" id="daysGrid"></div>
+
+      <div class="event-panel" id="eventPanel">
+        <div class="event-panel-header">
+          <span class="event-panel-date" id="eventPanelDate"></span>
+        </div>
+        <div class="event-list" id="eventList"></div>
+      </div>
+
+      <div class="voice-area">
+        <div class="voice-result" id="voiceResult"></div>
+        <div class="voice-error" id="voiceError"></div>
+        <div class="conflict-prompt" id="conflictPrompt">
+          <div class="conflict-msg" id="conflictMsg"></div>
+          <div class="conflict-btns">
+            <button class="conflict-confirm" id="conflictConfirm">确认添加</button>
+            <button class="conflict-cancel" id="conflictCancel">取消</button>
+          </div>
+        </div>
+        <div class="voice-controls">
+          <button class="mic-btn" id="micBtn">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
         </div>
       </div>
-      <div class="voice-controls">
-        <button class="mic-btn" id="micBtn">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
-      </button>
+    </div>
+
+    <!-- 日记页面 -->
+    <div class="page" id="page-diary">
+      <div class="placeholder-page">
+        <span class="placeholder-icon">📝</span>
+        <span class="placeholder-text">日记功能即将上线</span>
       </div>
+    </div>
+
+    <!-- 设置页面 -->
+    <div class="page" id="page-settings">
+      <div class="placeholder-page">
+        <span class="placeholder-icon">⚙️</span>
+        <span class="placeholder-text">设置功能即将上线</span>
+      </div>
+    </div>
   </div>
+
+  <!-- 底部导航栏 -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-tab active" data-page="calendar">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">日历</span>
+    </button>
+    <button class="nav-tab" data-page="diary">
+      <span class="nav-icon">📝</span>
+      <span class="nav-label">日记</span>
+    </button>
+    <button class="nav-tab" data-page="settings">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">设置</span>
+    </button>
+  </nav>
 
   <script src="storage.js"></script>
   <script src="calendar.js"></script>
