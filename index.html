@@ -7,18 +7,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 侧边栏遮罩 -->
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <!-- 侧边栏 -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <span class="sidebar-date" id="sidebarDate"></span>
-      <button class="sidebar-close" id="sidebarClose">&times;</button>
-    </div>
-    <div class="sidebar-content" id="sidebarContent">
-      <div class="sidebar-empty">暂无内容</div>
-    </div>
+  <!-- 云朵今日播报 -->
+  <div class="cloud-greeting" id="cloudGreeting">
+    <button class="cloud-close" id="cloudClose">&times;</button>
+    <div class="cloud-text" id="cloudText"></div>
+    <div class="cloud-events" id="cloudEvents"></div>
   </div>
 
   <div class="app">
@@ -74,7 +67,7 @@
   <script src="tts.js"></script>
   <script src="parser.js"></script>
   <script src="speech.js"></script>
-  <script src="sidebar.js"></script>
+  <script src="cloud.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
