@@ -120,7 +120,6 @@ function renderCalendar() {
       selectedDate = dateStr;
       renderCalendar();
       showEventPanel(dateStr);
-      openSidebar(dateStr);
     });
 
     daysGrid.appendChild(cell);
