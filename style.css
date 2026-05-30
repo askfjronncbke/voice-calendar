@@ -917,13 +917,14 @@ body::after {
 
 /* 日记调整高度手柄 */
 .diary-resize-handle {
-  height: 10px;
+  height: 16px;
   cursor: ns-resize;
   flex-shrink: 0;
   background: rgba(255,255,255,0.03);
   border-radius: 0 0 8px 8px;
   margin: 0 -20px -20px -20px;
   position: relative;
+  touch-action: none;
 }
 
 .diary-resize-handle::after {

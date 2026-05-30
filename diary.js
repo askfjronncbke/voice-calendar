@@ -146,6 +146,7 @@ document.addEventListener("click", function (e) {
 
 function showDiaryConfirm(onConfirm) {
   const overlay = document.getElementById("diaryConfirmModal");
+  document.getElementById("diaryConfirmMsg").textContent = "确定清空今天的日记吗？";
   overlay.classList.add("show");
   document.getElementById("diaryConfirmYes").onclick = function () {
     overlay.classList.remove("show");
@@ -162,29 +163,28 @@ function initResizeHandle() {
   const handle = document.getElementById("diaryResizeHandle");
   const paper = document.querySelector(".diary-paper");
   let resizing = false;
-  let startY = 0;
-  let startHeight = 0;
+  let _resizeOffsetY = 0;
+  let _resizeStartH = 0;
 
   handle.addEventListener("pointerdown", function (e) {
+    e.preventDefault();
     resizing = true;
     handle.setPointerCapture(e.pointerId);
-    startY = e.clientY;
-    startHeight = paper.getBoundingClientRect().height;
+    _resizeOffsetY = e.clientY;
+    _resizeStartH = paper.getBoundingClientRect().height;
+    paper.style.flex = "none";
   });
 
-  handle.addEventListener("pointermove", function (e) {
+  document.addEventListener("pointermove", function (e) {
     if (!resizing) return;
-    const dy = e.clientY - startY;
-    const newH = Math.max(200, startHeight + dy);
-    paper.style.minHeight = newH + "px";
+    var dy = e.clientY - _resizeOffsetY;
+    paper.style.minHeight = Math.max(200, _resizeStartH + dy) + "px";
+    paper.style.height = paper.style.minHeight;
   });
 
-  handle.addEventListener("pointerup", function () {
+  document.addEventListener("pointerup", function () {
     if (resizing) {
       resizing = false;
-      const h = paper.getBoundingClientRect().height;
-      paper.style.minHeight = h + "px";
-      paper.style.flex = "none";
     }
   });
 
