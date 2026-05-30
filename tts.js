@@ -147,6 +147,18 @@ function ttsPlayAudio(audioChunks) {
   ttsAudioEl.onended = () => URL.revokeObjectURL(url);
 }
 
+// ---------- 文本编码（UTF-8 → base64）----------
+
+function encodeText(text) {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(text);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 // ---------- 合成与播放 ----------
 
 async function speak(text) {
@@ -174,7 +186,7 @@ async function speak(text) {
         },
         data: {
           status: 2,
-          text: btoa(unescape(encodeURIComponent(text))),
+          text: encodeText(text),
         },
       };
 

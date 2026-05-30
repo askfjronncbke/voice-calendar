@@ -156,6 +156,14 @@ function initDiary() {
 
   const textarea = document.getElementById("diaryTextarea");
   textarea.addEventListener("input", scheduleDiarySave);
+
+  document.getElementById("diaryTrashBtn").addEventListener("click", function () {
+    if (confirm("确定清空今天的日记吗？")) {
+      textarea.value = "";
+      saveDiary(diaryDate, "");
+      renderCalendar();
+    }
+  });
 }
 
 document.addEventListener("DOMContentLoaded", initDiary);

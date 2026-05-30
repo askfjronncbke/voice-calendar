@@ -325,6 +325,29 @@ function activeVoiceElements() {
   };
 }
 
+var _audioUnlocked = false;
+
+function unlockAudio() {
+  if (_audioUnlocked) return;
+  _audioUnlocked = true;
+  var audioCtx = null;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) {
+    return;
+  }
+  var buf = audioCtx.createBuffer(1, 1, 22050);
+  var src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.connect(audioCtx.destination);
+  src.start(0);
+  setTimeout(function () {
+    if (audioCtx && audioCtx.state !== "closed") {
+      audioCtx.close().catch(function () {});
+    }
+  }, 200);
+}
+
 function initSpeech() {
   micBtn = document.getElementById("micBtn");
   var els = activeVoiceElements();
@@ -370,6 +393,7 @@ function initSpeech() {
 
   micBtn.addEventListener("click", function () {
     if (_isDragging) return;
+    unlockAudio();
     // 根据当前活跃页面切换语音目标
     var els = activeVoiceElements();
     voiceResult = els.result;
