@@ -189,14 +189,18 @@ body::before {
     0 0 0 3px rgba(255,255,255,0.2);
 }
 
-/* ---------- 手绘星星框：有事件的日期 ---------- */
+/* ---------- 事件小圆点 ---------- */
 .day-cell .dot {
   position: absolute;
-  inset: -2px;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f5d442;
+  box-shadow: 0 0 6px rgba(245,212,66,0.5);
   pointer-events: none;
-  background:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 34 34' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17 3 L20 12 L30 13 L22 20 L24 29 L17 24 L10 29 L12 20 L4 13 L14 12 Z' fill='none' stroke='rgba(255,255,200,0.45)' stroke-width='1' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M17 4 L19.5 12 L28.5 13 L21.5 19.5 L23 28 L17 23.5 L11 28 L12.5 19.5 L5.5 13 L14.5 12 Z' fill='none' stroke='rgba(255,255,220,0.25)' stroke-width='0.8' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E")
-    center/contain no-repeat;
 }
 
 /* ---------- 事件列表面板 ---------- */
