@@ -2,11 +2,9 @@
 // DeepSeek API 自然语言解析
 // - 输入：语音识别文本
 // - 输出：结构化意图 { action, date, time, title }
-// - action: "add" | "query" | "delete"
+// - action: "add" | "query" | "delete" | "update"
 // - 支持日期表达：明天/后天/大后天/这周X/下周X/这周末
 // ============================================
-
-const DEEPSEEK_KEY = "sk-6352b099114240fe9968455267ba6947";
 
 // ---------- 日期工具 ----------
 
@@ -83,12 +81,9 @@ function buildDateContext() {
 // ---------- DeepSeek API 调用 ----------
 
 async function callDeepSeek(systemPrompt, userMessage) {
-  const response = await fetch("https://api.deepseek.com/chat/completions", {
+  const response = await fetch("http://localhost:8080/api/voice-proxy/deepseek", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + DEEPSEEK_KEY,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "deepseek-v4-pro",
       messages: [
@@ -100,7 +95,7 @@ async function callDeepSeek(systemPrompt, userMessage) {
   });
 
   if (!response.ok) {
-    throw new Error("DeepSeek API error: " + response.status);
+    throw new Error("DeepSeek proxy error: " + response.status);
   }
 
   const data = await response.json();
@@ -139,13 +134,19 @@ function buildSystemPrompt() {
   删除词：删除、删掉、取消、去掉、移除
   示例："删除明天的开会" → delete
 
-规则3 - 以上都不匹配 → action = "add"（默认！）
+规则3 - 如果用户话里包含以下任一词语 → action = "update"
+	  修改词：改、修改、改为、改成、推迟到、提前到、换到、挪到、调到
+	  含义：用户想改变已有事件的时间，而不是新增
+	  示例："把明天的会议推迟到4点" → update
+	  示例："将周五的聚餐改成晚上7点" → update
+
+	规则4 - 以上都不匹配 → action = "add"（默认！）
   注意：描述一件事、一个计划、一个安排，全都是 add
   示例："明天下午三点上课" → add（不是query！不含查询词！）
   示例："后天开会" → add
   示例："周五聚餐" → add
 
-规则4 - 如果用户说的内容无意义、无法识别意图、纯语气词/拟声词/单个标点 → action = "unknown"
+规则5 - 如果用户说的内容无意义、无法识别意图、纯语气词/拟声词/单个标点 → action = "unknown"
   示例：
     "。" → unknown
     "嗯" → unknown
@@ -188,6 +189,9 @@ query: 查单天 → {"action":"query","date":"日期"}
        （用户说"这个月有什么事"/"本月有什么安排"时，必须用月份格式 date="${ctx.thisMonth}"）
        （用户说"下周有什么安排"/"下个星期有什么事"时，必须用 next_week 格式，week_start="${ctx.nextWeekStart}"，week_end="${ctx.nextWeekEnd}"）
 delete: {"action":"delete","date":"日期","keywords":"关键词"}
+	update: {"action":"update","date":"日期","keywords":"关键词","time":"新时间"}
+	  （keywords 是用于匹配要修改的原始事件标题的关键词，不能是泛指词）
+	  （time 是修改后的新时间，如果用户没有指定新时间则 time=""）
   （keywords 是从用户话里提取的、用于匹配事件标题的具体内容词）
   （重要！禁止使用泛指词：安排、日程、事情、事项、事件、计划——这些不是事件标题，不能作为keywords）
   （用户说"取消这周日的安排" → date=这周日，keywords=""，因为"安排"是泛指词）
@@ -212,7 +216,11 @@ delete: {"action":"delete","date":"日期","keywords":"关键词"}
   注意：月份查询用YYYY-MM格式，不要用YYYY-MM-DD。
 - 输入："我下周有什么安排"
   输出：{"action":"query","date":"next_week","week_start":"${ctx.nextWeekStart}","week_end":"${ctx.nextWeekEnd}"}
-  注意：下周必须用 next_week 格式，同时查周一至周日全部七天。`;
+  注意：下周必须用 next_week 格式，同时查周一至周日全部七天。
+	- 输入："把明天的会议推迟到4点"
+	  输出：{"action":"update","date":"${ctx.tomorrow}","time":"16:00","keywords":"会议"}
+	- 输入："将周五的聚餐改成晚上7点"
+	  输出：{"action":"update","date":"${ctx.thisWeek.周五}","time":"19:00","keywords":"聚餐"}`;
 }
 
 // ---------- 日期显示格式化 ----------
@@ -501,6 +509,85 @@ function executeDelete(parsed) {
   }
 }
 
+function executeUpdate(parsed) {
+  var dateEvents = getEventsByDate(parsed.date);
+  voiceError.textContent = "";
+
+  if (dateEvents.length === 0) {
+    voiceResult.textContent = "";
+    voiceError.textContent = fmtDisplay(parsed.date) + " 没有事件";
+    speak(fmtDisplay(parsed.date) + "没有事件");
+    renderCalendar();
+    return;
+  }
+
+  // 关键词匹配
+  var kw = (parsed.keywords || "").trim();
+  var matches = kw
+    ? dateEvents.filter(function (e) { return e.title.includes(kw); })
+    : dateEvents;
+
+  if (matches.length === 0) {
+    voiceResult.textContent = "";
+    voiceError.textContent = parsed.date + " 未找到包含「" + kw + "」的事件";
+    speak("未找到匹配的事件");
+    renderCalendar();
+    return;
+  }
+
+  // 按时间排序（早的在前）
+  matches = sortEvents(matches);
+
+  if (matches.length === 1) {
+    // 单个匹配：直接确认修改
+    var ev = matches[0];
+    showConfirm("确定将「" + ev.title + "」的时间改为" + (parsed.time ? fmtSpokenTime(parsed.time) : "全天") + "吗？", function () {
+      var oldTitle = ev.title;
+      deleteEvent(ev.id);
+      var newEv = addEvent(parsed.date, parsed.time || "", oldTitle);
+      voiceResult.textContent = "已修改：" + oldTitle + " → " + (parsed.time || "全天");
+      speak("已将「" + oldTitle + "」的时间改为" + (parsed.time ? fmtSpokenTime(parsed.time) : "全天"));
+      selectedDate = parsed.date;
+      renderCalendar();
+      showEventPanel(parsed.date);
+    });
+    return;
+  }
+
+  // 多个匹配：弹窗问用户是否为最早的那个
+  var first = matches[0];
+  var second = matches[1];
+  var msg = fmtDisplay(parsed.date) + " 有" + matches.length + "个匹配的事件：\n"
+    + "1. " + (first.time || "全天") + " " + first.title + "\n"
+    + "2. " + (second.time || "全天") + " " + second.title + "\n\n"
+    + "是否为第1个事件（" + first.title + "）的日程变动？";
+
+  showBinaryConfirm(msg, "是，改这个", "不是，改第2个",
+    function () {
+      // 修改第1个
+      var oldTitle = first.title;
+      deleteEvent(first.id);
+      var newEv = addEvent(parsed.date, parsed.time || "", oldTitle);
+      voiceResult.textContent = "已修改：" + oldTitle + " → " + (parsed.time || "全天");
+      speak("已将「" + oldTitle + "」的时间改为" + (parsed.time ? fmtSpokenTime(parsed.time) : "全天"));
+      selectedDate = parsed.date;
+      renderCalendar();
+      showEventPanel(parsed.date);
+    },
+    function () {
+      // 修改第2个
+      var oldTitle = second.title;
+      deleteEvent(second.id);
+      var newEv = addEvent(parsed.date, parsed.time || "", oldTitle);
+      voiceResult.textContent = "已修改：" + oldTitle + " → " + (parsed.time || "全天");
+      speak("已将「" + oldTitle + "」的时间改为" + (parsed.time ? fmtSpokenTime(parsed.time) : "全天"));
+      selectedDate = parsed.date;
+      renderCalendar();
+      showEventPanel(parsed.date);
+    }
+  );
+}
+
 // ---------- 主入口 ----------
 
 async function parseAndExecute(text) {
@@ -551,6 +638,9 @@ async function parseAndExecute(text) {
         break;
       case "delete":
         executeDelete(parsed);
+        break;
+      case "update":
+        executeUpdate(parsed);
         break;
       case "unknown":
         voiceResult.textContent = "";
