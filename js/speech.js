@@ -123,6 +123,40 @@ function handleMessage(event) {
   }
 }
 
+// ---------- 音频重采样 ----------
+
+const TARGET_SAMPLE_RATE = 16000;
+let _resampleRatio = 1;
+let _resampleBuffer = null;   // Float32Array, 暂存上次剩余的采样点
+let _resampleOffset = 0;
+
+function resampleTo16k(inputBuffer, inputRate) {
+  var input = inputBuffer.getChannelData(0);
+  var ratio = inputRate / TARGET_SAMPLE_RATE;
+  var outputLen = Math.floor(input.length / ratio);
+  var output = new Float32Array(outputLen);
+
+  // 线性插值重采样
+  for (var i = 0; i < outputLen; i++) {
+    var srcIdx = i * ratio;
+    var srcFloor = Math.floor(srcIdx);
+    var srcCeil = Math.min(srcFloor + 1, input.length - 1);
+    var frac = srcIdx - srcFloor;
+    output[i] = input[srcFloor] * (1 - frac) + input[srcCeil] * frac;
+  }
+
+  return output;
+}
+
+function float32ToInt16(float32) {
+  var int16 = new Int16Array(float32.length);
+  for (var i = 0; i < float32.length; i++) {
+    var s = Math.max(-1, Math.min(1, float32[i]));
+    int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+  }
+  return int16;
+}
+
 // ---------- 音频采集 ----------
 
 async function startRecording() {
@@ -133,31 +167,52 @@ async function startRecording() {
   micBtn.classList.add("recording");
 
   try {
-    // 获取麦克风权限（指定 16kHz 单声道）
-    mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true },
-    });
+    // 移动端优化约束：开启回声消除、降噪、自动增益
+    var constraints = {
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: { ideal: 1 },
+        sampleRate: { ideal: TARGET_SAMPLE_RATE },
+      },
+    };
 
-    audioContext = new AudioContext({ sampleRate: 16000 });
-    const source = audioContext.createMediaStreamSource(mediaStream);
+    mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
 
-    // ScriptProcessorNode 获取原始 PCM
-    scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+    // 获取实际采样率（移动端可能不听从 ideal 约束）
+    var audioTrack = mediaStream.getAudioTracks()[0];
+    var actualRate = audioTrack.getSettings().sampleRate || TARGET_SAMPLE_RATE;
+    console.log("Mic actual sample rate:", actualRate, "Hz");
+
+    // 创建 AudioContext（使用设备原生采样率，避免浏览器二次重采样）
+    audioContext = new AudioContext({ sampleRate: actualRate });
+    var source = audioContext.createMediaStreamSource(mediaStream);
+
+    // AudioWorklet 或 ScriptProcessorNode 读取原始音频
+    var bufferSize = actualRate >= 44100 ? 8192 : 4096;
+    scriptProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
     frameIndex = 0;
+    _resampleRatio = actualRate / TARGET_SAMPLE_RATE;
+    _resampleBuffer = null;
+    _resampleOffset = 0;
 
-    scriptProcessor.onaudioprocess = (e) => {
+    scriptProcessor.onaudioprocess = function (e) {
       if (!isRecording) return;
-      const input = e.inputBuffer.getChannelData(0);
+      var inputBuffer = e.inputBuffer;
 
-      // Float32 → Int16 PCM
-      const int16 = new Int16Array(input.length);
-      for (let i = 0; i < input.length; i++) {
-        let s = Math.max(-1, Math.min(1, input[i]));
-        int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      // 重采样到 16kHz
+      var resampled;
+      if (actualRate === TARGET_SAMPLE_RATE) {
+        resampled = inputBuffer.getChannelData(0);
+      } else {
+        resampled = resampleTo16k(inputBuffer, actualRate);
       }
 
-      const base64 = arrayBufferToBase64(int16.buffer);
-      const status = frameIndex === 0 ? 0 : 1;
+      // Float32 → Int16 PCM
+      var int16 = float32ToInt16(resampled);
+      var base64 = arrayBufferToBase64(int16.buffer);
+      var status = frameIndex === 0 ? 0 : 1;
       sendAudioFrame(base64, status);
       frameIndex++;
     };
@@ -166,23 +221,23 @@ async function startRecording() {
     scriptProcessor.connect(audioContext.destination);
 
     // 连接 WebSocket
-    const authUrl = await getAuthUrl();
+    var authUrl = await getAuthUrl();
     ws = new WebSocket(authUrl);
 
-    ws.onopen = () => {
-      console.log("iFlytek WS connected");
+    ws.onopen = function () {
+      console.log("iFlytek WS connected (rate=" + actualRate + "Hz)");
       isRecording = true;
     };
 
     ws.onmessage = handleMessage;
 
-    ws.onerror = (e) => {
+    ws.onerror = function (e) {
       console.error("WebSocket error:", e);
       voiceError.textContent = "连接讯飞服务失败，请检查网络";
       cleanupRecording();
     };
 
-    ws.onclose = () => {
+    ws.onclose = function () {
       console.log("iFlytek WS closed");
     };
   } catch (e) {
@@ -237,6 +292,8 @@ function cleanupRecording() {
     ws = null;
   }
   frameIndex = 0;
+  _resampleBuffer = null;
+  _resampleOffset = 0;
 }
 
 // ---------- 初始化 ----------
