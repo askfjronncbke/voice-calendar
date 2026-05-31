@@ -522,6 +522,7 @@ body::after {
   box-shadow: 0 4px 20px rgba(233,69,96,0.3);
   position: relative;
   touch-action: none;
+  outline: none;
 }
 
 .mic-btn::after {
