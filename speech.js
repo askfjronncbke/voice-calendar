@@ -43,7 +43,7 @@ function arrayBufferToBase64(buffer) {
 // ---------- 鉴权 ----------
 
 async function getAuthUrl() {
-  const response = await fetch("/api/voice-proxy/speech-auth");
+  const response = await fetch("http://localhost:8080/api/voice-proxy/speech-auth");
   if (!response.ok) throw new Error("Speech auth error: " + response.status);
   const data = await response.json();
   _speechAppId = data.appId;
