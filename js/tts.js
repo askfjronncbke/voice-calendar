@@ -71,27 +71,39 @@ function ttsPlayAudio(audioChunks) {
   const bytes = decodeAudioChunks(audioChunks);
   if (!bytes) return;
 
+  // 优先使用已解锁的 AudioContext 播放（绕过 autoplay 限制）
+  var ctx = window._ttsAudioCtx;
+  if (ctx && ctx.state !== "closed") {
+    if (ctx.state === "suspended") {
+      ctx.resume();
+    }
+    var audioData = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+    ctx.decodeAudioData(audioData, function (buffer) {
+      var source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+    }, function () {
+      // MP3 解码失败，降级到 Audio 元素
+      console.warn("TTS: AudioContext decode failed, falling back to Audio element");
+      playViaAudioElement(bytes);
+    });
+  } else {
+    // AudioContext 不可用，降级到 Audio 元素
+    playViaAudioElement(bytes);
+  }
+}
+
+function playViaAudioElement(bytes) {
   const blob = new Blob([bytes.buffer], { type: "audio/mp3" });
   const url = URL.createObjectURL(blob);
-
-  var audioEl = window._sharedAudio || new Audio();
-  // 共享 Audio 元素被移除时回退到新建
-  if (!audioEl || !document.contains(audioEl)) {
-    audioEl = new Audio();
-  }
-  audioEl.pause();
-  if (audioEl.src) {
-    URL.revokeObjectURL(audioEl.src);
-  }
-  audioEl.src = url;
+  var audioEl = new Audio(url);
   audioEl.play().catch(function (e) {
     console.warn("TTS playback:", e.message);
   });
-
   audioEl.onended = function () {
     URL.revokeObjectURL(url);
   };
-
   ttsAudioEl = audioEl;
 }
 

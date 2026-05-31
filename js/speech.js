@@ -271,27 +271,24 @@ function unlockAudio(callback) {
   if (_audioUnlocked) return;
   _audioUnlocked = true;
 
-  // 用 AudioContext 播放极短静音来可靠解锁浏览器的 autoplay 策略
+  // 创建全局 AudioContext（一次创建，后续所有 TTS 通过它播放，绕过 autoplay 限制）
   try {
     var ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === "suspended") {
       ctx.resume();
     }
+    // 播放一帧静音来激活上下文
     var buffer = ctx.createBuffer(1, 1, 22050);
     var source = ctx.createBufferSource();
     source.buffer = buffer;
     source.connect(ctx.destination);
     source.start(0);
-    source.onended = function () {
-      ctx.close().catch(function () {});
-    };
+    // 保存为全局共享 AudioContext
+    window._ttsAudioCtx = ctx;
   } catch (e) {
-    // 降级：播放一段无声的数据 URI
-    var dummy = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
-    dummy.play().catch(function () {});
+    // 降级：依然尝试保存 AudioContext
+    window._ttsAudioCtx = null;
   }
-
-  window._sharedAudio = new Audio();
 
   // 如果有待播报的问候语，立即播放
   if (_pendingGreeting) {
