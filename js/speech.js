@@ -189,8 +189,8 @@ async function startRecording() {
     audioContext = new AudioContext({ sampleRate: actualRate });
     var source = audioContext.createMediaStreamSource(mediaStream);
 
-    // AudioWorklet 或 ScriptProcessorNode 读取原始音频
-    var bufferSize = actualRate >= 44100 ? 8192 : 4096;
+    // ScriptProcessorNode 读取原始音频（固定 4096，重采样统一为 16kHz 后输出约 256~512 样本）
+    var bufferSize = 4096;
     scriptProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
     frameIndex = 0;
     _resampleRatio = actualRate / TARGET_SAMPLE_RATE;
@@ -209,9 +209,9 @@ async function startRecording() {
         resampled = resampleTo16k(inputBuffer, actualRate);
       }
 
-      // Float32 → Int16 PCM
+      // Float32 → Int16 PCM（精确切片，防止 ArrayBuffer 尾部垃圾字节）
       var int16 = float32ToInt16(resampled);
-      var base64 = arrayBufferToBase64(int16.buffer);
+      var base64 = arrayBufferToBase64(int16.buffer.slice(0, int16.byteLength));
       var status = frameIndex === 0 ? 0 : 1;
       sendAudioFrame(base64, status);
       frameIndex++;
