@@ -352,8 +352,6 @@ function initSpeech() {
   // ---- 短按录音 ----
 
   micBtn.addEventListener("click", function () {
-    if (_isDragging || _suppressClick) {
-      _suppressClick = false;
     if (_isDragging || _justDragged) {
       _justDragged = false;
       return;
