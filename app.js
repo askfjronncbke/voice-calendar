@@ -24,6 +24,12 @@ document.addEventListener("click", function (e) {
     return;
   }
 
+  // 点击日期格子或事件面板以外 → 收起事件列表
+  if (!e.target.closest(".day-cell") && !e.target.closest("#eventPanel")) {
+    hideEventPanel();
+    return;
+  }
+
   var vr = document.getElementById("voiceResult");
   var ve = document.getElementById("voiceError");
   if (vr) vr.textContent = "";
