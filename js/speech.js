@@ -363,7 +363,8 @@ function initSpeech() {
 
   // ---- 短按录音 ----
 
-  micBtn.addEventListener("click", function () {
+  micBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
     if (_isDragging || _justDragged) {
       _justDragged = false;
       return;

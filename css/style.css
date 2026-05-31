@@ -751,6 +751,11 @@ body::after {
   min-height: calc(100vh - 170px);
 }
 
+/* 设置页面隐藏麦克风按钮 */
+#page-settings.active ~ #micBtn {
+  display: none;
+}
+
 /* ---------- 日记页面 ---------- */
 .diary-header {
   display: flex;
