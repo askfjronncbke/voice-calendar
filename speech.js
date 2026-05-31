@@ -6,10 +6,7 @@
 // - 实时识别结果显示
 // ============================================
 
-const APP_ID = "b6427154";
-const API_KEY = "4e1ff88bf9216fac771776a3f6bdc379";
-const API_SECRET = "NTEyNDJiNjJjODRlZDM3YWQ5OTBmMGVh";
-const WS_URL = "wss://iat-api.xfyun.cn/v2/iat";
+let _speechAppId = null;
 
 let isRecording = false;
 let ws = null;
@@ -33,49 +30,6 @@ function setSpeechElements(mic, result, error) {
 
 // ---------- 工具函数 ----------
 
-function getRFC1123Date() {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  const d = new Date();
-  return (
-    days[d.getUTCDay()] +
-    ", " +
-    String(d.getUTCDate()).padStart(2, "0") +
-    " " +
-    months[d.getUTCMonth()] +
-    " " +
-    d.getUTCFullYear() +
-    " " +
-    String(d.getUTCHours()).padStart(2, "0") +
-    ":" +
-    String(d.getUTCMinutes()).padStart(2, "0") +
-    ":" +
-    String(d.getUTCSeconds()).padStart(2, "0") +
-    " GMT"
-  );
-}
-
-async function hmacSha256(message, secret) {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
-  const bytes = new Uint8Array(sig);
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
-
 function arrayBufferToBase64(buffer) {
   const bytes = new Uint8Array(buffer);
   const CHUNK = 0x8000;
@@ -89,30 +43,11 @@ function arrayBufferToBase64(buffer) {
 // ---------- 鉴权 ----------
 
 async function getAuthUrl() {
-  const url = new URL(WS_URL);
-  const host = url.host;
-  const date = getRFC1123Date();
-
-  const signatureOrigin =
-    "host: " + host + "\n" +
-    "date: " + date + "\n" +
-    "GET " + url.pathname + " HTTP/1.1";
-
-  const signature = await hmacSha256(signatureOrigin, API_SECRET);
-
-  const authOrigin =
-    'api_key="' + API_KEY +
-    '", algorithm="hmac-sha256"' +
-    ', headers="host date request-line"' +
-    ', signature="' + signature + '"';
-
-  const authorization = btoa(authOrigin);
-
-  url.searchParams.set("host", host);
-  url.searchParams.set("date", date);
-  url.searchParams.set("authorization", authorization);
-
-  return url.toString();
+  const response = await fetch("http://localhost:8080/api/voice-proxy/speech-auth");
+  if (!response.ok) throw new Error("Speech auth error: " + response.status);
+  const data = await response.json();
+  _speechAppId = data.appId;
+  return data.url;
 }
 
 // ---------- 发送音频帧 ----------
@@ -121,7 +56,7 @@ function sendAudioFrame(audioBase64, status) {
   if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
   const frame = {
-    common: { app_id: APP_ID },
+    common: { app_id: _speechAppId },
     business: {
       language: "zh_cn",
       domain: "iat",
