@@ -6,8 +6,6 @@
 // - 支持日期表达：明天/后天/大后天/这周X/下周X/这周末
 // ============================================
 
-const DEEPSEEK_KEY = "sk-6352b099114240fe9968455267ba6947";
-
 // ---------- 日期工具 ----------
 
 function fmtDateISO(year, month, day) {
@@ -83,12 +81,9 @@ function buildDateContext() {
 // ---------- DeepSeek API 调用 ----------
 
 async function callDeepSeek(systemPrompt, userMessage) {
-  const response = await fetch("https://api.deepseek.com/chat/completions", {
+  const response = await fetch("http://localhost:8080/api/voice-proxy/deepseek", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + DEEPSEEK_KEY,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "deepseek-v4-pro",
       messages: [
@@ -100,7 +95,7 @@ async function callDeepSeek(systemPrompt, userMessage) {
   });
 
   if (!response.ok) {
-    throw new Error("DeepSeek API error: " + response.status);
+    throw new Error("DeepSeek proxy error: " + response.status);
   }
 
   const data = await response.json();

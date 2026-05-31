@@ -1,3 +1,22 @@
+# Java
+*.class
+*.jar
+*.war
+target/
 
-# Spring Boot config with secrets
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config (contains real API keys)
+application.properties
 src/main/resources/application.properties
