@@ -5,6 +5,11 @@
 // - 关闭按钮触发飘出动画
 // ============================================
 
+function getWeekdayCN(date) {
+  var days = ["日", "一", "二", "三", "四", "五", "六"];
+  return "星期" + days[date.getDay()];
+}
+
 function showCloudGreeting() {
   var now = new Date();
   var hour = now.getHours();
@@ -15,13 +20,14 @@ function showCloudGreeting() {
   else greeting = "晚上好哦";
 
   var todayStr = fmtDateISO(now.getFullYear(), now.getMonth(), now.getDate());
+  var weekday = getWeekdayCN(now);
   var events = getEventsByDate(todayStr);
 
   var cloud = document.getElementById("cloudGreeting");
   var cloudText = document.getElementById("cloudText");
   var cloudEvents = document.getElementById("cloudEvents");
 
-  cloudText.textContent = greeting + "，今天是" + fmtSpokenDate(todayStr);
+  cloudText.textContent = greeting + "，今天是" + fmtSpokenDate(todayStr) + " " + weekday;
 
   cloudEvents.innerHTML = "";
   if (events.length === 0) {
@@ -46,13 +52,13 @@ function showCloudGreeting() {
 
   // TTS 播报
   if (events.length === 0) {
-    speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + "，暂无安排，祝您生活愉快！");
+    speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + weekday + "，暂无安排，祝您生活愉快！");
   } else {
     var eventList = events
       .map(function (e) { return (e.time ? fmtSpokenTime(e.time) + "，" : "") + e.title; })
       .join("、");
     var blessing = getBlessing(events[events.length - 1].title);
-    speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + "，您有" + events.length + "个事件：" + eventList + "，" + blessing);
+    speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + weekday + "，您有" + events.length + "个事件：" + eventList + "，" + blessing);
   }
 }
 

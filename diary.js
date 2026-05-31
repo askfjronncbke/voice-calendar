@@ -140,7 +140,7 @@ function hideMiniCalendar() {
   document.getElementById("miniCalPopup").classList.remove("show");
 }
 
-// ---------- 自定义确认弹窗 ----------
+// ---------- 通用确认弹窗 ----------
 
 function showConfirm(msg, onConfirm) {
   const overlay = document.getElementById("diaryConfirmModal");
@@ -176,7 +176,6 @@ function showBinaryConfirm(msg, yesLabel, noLabel, onYes, onNo) {
     if (onNo) onNo();
   };
 }
-
 function showDiaryConfirm(onConfirm) {
   showConfirm("确定清空今天的日记吗？", onConfirm);
 }
