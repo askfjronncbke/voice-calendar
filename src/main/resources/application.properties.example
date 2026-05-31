@@ -1,0 +1,22 @@
+# ============================================
+# 语音日历 — API 配置
+# ============================================
+# 复制此文件为 application.properties 并填入真实 Key
+# application.properties 已在 .gitignore 中，不会被提交
+# ============================================
+
+# --- 讯飞语音识别 (WebSocket IAT) ---
+iflytek.speech.app-id=
+iflytek.speech.api-key=
+iflytek.speech.api-secret=
+
+# --- 讯飞 TTS (语音合成) ---
+iflytek.tts.app-id=
+iflytek.tts.api-key=
+iflytek.tts.api-secret=
+
+# --- DeepSeek (NL 解析) ---
+deepseek.api-key=
+
+# --- 服务器端口 (可选，默认 8080) ---
+server.port=8080
