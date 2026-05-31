@@ -3,6 +3,23 @@
 // - 输入：语音识别文本
 // - 输出：结构化意图 { action, date, time, title }
 // - action: "add" | "query" | "delete" | "update"
+
+// ---------- 中文模糊匹配 ----------
+
+function fuzzyMatch(title, keyword) {
+  if (!title || !keyword) return false;
+  // 完全包含直接命中
+  if (title.includes(keyword)) return true;
+  // 汉字级模糊匹配：计算关键词中的字在标题中的命中率
+  var kwChars = keyword.replace(/\s/g, "").split("");
+  var titleChars = title.replace(/\s/g, "").split("");
+  var matched = 0;
+  for (var i = 0; i < kwChars.length; i++) {
+    if (titleChars.includes(kwChars[i])) matched++;
+  }
+  // 命中率 >= 50% 即认为匹配
+  return matched >= Math.ceil(kwChars.length / 2);
+}
 // - 支持日期表达：明天/后天/大后天/这周X/下周X/这周末
 // ============================================
 
@@ -524,7 +541,7 @@ function executeDelete(parsed) {
   }
 
   // 多个事件，关键词模糊匹配
-  var matches = dateEvents.filter(function (e) { return e.title.includes(parsed.keywords); });
+  var matches = dateEvents.filter(function (e) { return fuzzyMatch(e.title, parsed.keywords); });
   if (matches.length > 0) {
     var target = matches[matches.length - 1];
     showConfirm("确定删除「" + target.title + "」吗？", function () {
@@ -558,7 +575,7 @@ function executeUpdate(parsed) {
   // 关键词匹配
   var kw = (parsed.keywords || "").trim();
   var matches = kw
-    ? dateEvents.filter(function (e) { return e.title.includes(kw); })
+    ? dateEvents.filter(function (e) { return fuzzyMatch(e.title, kw); })
     : dateEvents;
 
   if (matches.length === 0) {
