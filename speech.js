@@ -245,6 +245,7 @@ let _isDragging = false;
 let _justDragged = false;
 let _offsetX = 0;
 let _offsetY = 0;
+let _suppressClick = false;
 
 function activeVoiceElements() {
   const diaryPage = document.getElementById("page-diary");
@@ -276,6 +277,25 @@ function initSpeech() {
   voiceResult = els.result;
   voiceError = els.error;
 
+  // ---- 麦克风拖动 ----
+
+  micBtn.addEventListener("pointerdown", function (e) {
+    _suppressClick = false;
+    micBtn.setPointerCapture(e.pointerId);
+    var rect = micBtn.getBoundingClientRect();
+    _offsetX = e.clientX - rect.left;
+    _offsetY = e.clientY - rect.top;
+
+    _dragTimer = setTimeout(function () {
+      _isDragging = true;
+      _suppressClick = true;
+      micBtn.classList.add("dragging");
+      if (!micBtn.style.position || micBtn.style.position !== "fixed") {
+        micBtn.style.position = "fixed";
+        micBtn.style.left = rect.left + "px";
+        micBtn.style.top = rect.top + "px";
+      }
+    }, 500);
   // 长按拖动：第一次 pointermove 就进入拖拽，零延迟跟手
   micBtn.addEventListener("pointerdown", function (e) {
     var rect = micBtn.getBoundingClientRect();
@@ -309,19 +329,31 @@ function initSpeech() {
 
   document.addEventListener("pointerup", function () {
     if (_isDragging) {
+      _isDragging = false;
       micBtn.classList.remove("dragging");
       localStorage.setItem("mic_btn_position", JSON.stringify({
         left: parseInt(micBtn.style.left),
         top: parseInt(micBtn.style.top)
       }));
+    }
+  });
+
+  micBtn.addEventListener("pointercancel", function () {
+    clearTimeout(_dragTimer);
+    if (_isDragging) {
       _justDragged = true;
       _isDragging = false;
+      micBtn.classList.remove("dragging");
     }
     _offsetX = 0;
     _offsetY = 0;
   });
 
+  // ---- 短按录音 ----
+
   micBtn.addEventListener("click", function () {
+    if (_isDragging || _suppressClick) {
+      _suppressClick = false;
     if (_isDragging || _justDragged) {
       _justDragged = false;
       return;
@@ -330,7 +362,6 @@ function initSpeech() {
     var els = activeVoiceElements();
     voiceResult = els.result;
     voiceError = els.error;
-
     if (isRecording) {
       stopRecording();
     } else {
@@ -353,7 +384,8 @@ function initSpeech() {
     }
   });
 
-  // 恢复上次拖拽位置
+  // ---- 恢复上次位置 ----
+
   var saved = localStorage.getItem("mic_btn_position");
   if (saved) {
     var pos = JSON.parse(saved);
