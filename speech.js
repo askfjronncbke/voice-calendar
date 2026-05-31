@@ -306,8 +306,8 @@ function cleanupRecording() {
 
 // ---------- 初始化 ----------
 
-let _dragTimer = null;
 let _isDragging = false;
+let _justDragged = false;
 let _offsetX = 0;
 let _offsetY = 0;
 
@@ -341,44 +341,56 @@ function initSpeech() {
   voiceResult = els.result;
   voiceError = els.error;
 
-  // 长按拖动
+  // 长按拖动：第一次 pointermove 就进入拖拽，零延迟跟手
   micBtn.addEventListener("pointerdown", function (e) {
-    micBtn.setPointerCapture(e.pointerId);
     var rect = micBtn.getBoundingClientRect();
     _offsetX = e.clientX - rect.left;
     _offsetY = e.clientY - rect.top;
-
-    _dragTimer = setTimeout(function () {
-      _isDragging = true;
-      micBtn.classList.add("dragging");
-      if (!micBtn.style.position || micBtn.style.position !== "fixed") {
-        micBtn.style.position = "fixed";
-        micBtn.style.left = rect.left + "px";
-        micBtn.style.top = rect.top + "px";
-      }
-    }, 500);
+    _isDragging = false;
   });
 
   document.addEventListener("pointermove", function (e) {
-    if (!_isDragging) return;
+    if (_isDragging) {
+      // 已在拖拽：跟随移动
+      micBtn.style.left = (e.clientX - _offsetX) + "px";
+      micBtn.style.top = (e.clientY - _offsetY) + "px";
+      return;
+    }
+
+    // pointerdown 还没触发过（_offsetX 仍为 0 且未拖拽中），忽略
+    if (_offsetX === 0 && _offsetY === 0) return;
+
+    // 第一次移动：立刻切 fixed 并进入拖拽，然后立即跟手
+    _isDragging = true;
+    var rect = micBtn.getBoundingClientRect();
+    micBtn.style.position = "fixed";
+    micBtn.style.left = rect.left + "px";
+    micBtn.style.top = rect.top + "px";
+    micBtn.classList.add("dragging");
+    // 接着立刻更新到当前光标位置（修复首次只能动一点点的 bug）
     micBtn.style.left = (e.clientX - _offsetX) + "px";
     micBtn.style.top = (e.clientY - _offsetY) + "px";
   });
 
   document.addEventListener("pointerup", function () {
-    clearTimeout(_dragTimer);
     if (_isDragging) {
       micBtn.classList.remove("dragging");
       localStorage.setItem("mic_btn_position", JSON.stringify({
         left: parseInt(micBtn.style.left),
         top: parseInt(micBtn.style.top)
       }));
+      _justDragged = true;
       _isDragging = false;
     }
+    _offsetX = 0;
+    _offsetY = 0;
   });
 
   micBtn.addEventListener("click", function () {
-    if (_isDragging) return;
+    if (_isDragging || _justDragged) {
+      _justDragged = false;
+      return;
+    }
     unlockAudio();
     var els = activeVoiceElements();
     voiceResult = els.result;

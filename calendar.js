@@ -124,7 +124,11 @@ function renderCalendar() {
     }
 
     cell.addEventListener("click", () => {
-      if (isOtherMonth) return;
+      if (isOtherMonth) {
+        // 自动跳转到对应月份
+        currentYear = cellYear;
+        currentMonth = cellMonth;
+      }
       selectedDate = dateStr;
       renderCalendar();
       showEventPanel(dateStr);
@@ -194,10 +198,12 @@ function showEventPanel(dateStr) {
       delBtn.title = "删除事件";
       delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        deleteEvent(ev.id);
-        // 重新渲染日历圆点 + 事件列表
-        renderCalendar();
-        showEventPanel(dateStr);
+        showConfirm("确定要删除事件「" + ev.title + "」吗？", function () {
+          deleteEvent(ev.id);
+          // 重新渲染日历圆点 + 事件列表
+          renderCalendar();
+          showEventPanel(dateStr);
+        });
       });
 
       item.appendChild(info);
