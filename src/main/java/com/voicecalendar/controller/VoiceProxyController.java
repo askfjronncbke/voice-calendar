@@ -69,16 +69,6 @@ public class VoiceProxyController {
 
     // ---------- 讯飞 TTS 鉴权 ----------
 
-    @GetMapping("/debug/env")
-    public ResponseEntity<?> debugEnv() {
-        var vars = System.getenv().entrySet().stream()
-                .filter(e -> e.getKey().contains("IFLYTEK") || e.getKey().contains("DEEPSEEK"))
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> e.getKey() + "=" + (e.getValue().length() > 20 ? e.getValue().substring(0, 20) + "..." : e.getValue()))
-                .toList();
-        return ResponseEntity.ok(Map.of("count", vars.size(), "vars", vars));
-    }
-
     @GetMapping("/tts-auth")
     public ResponseEntity<?> getTtsAuth() {
         try {
