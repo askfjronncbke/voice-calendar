@@ -17,22 +17,22 @@ import java.util.Map;
 @Service
 public class IflytekAuthService {
 
-    @Value("${iflytek.speech.app-id}")
+    @Value("${iflytek.speech.appid}")
     private String speechAppId;
 
-    @Value("${iflytek.speech.api-key}")
+    @Value("${iflytek.speech.apikey}")
     private String speechApiKey;
 
-    @Value("${iflytek.speech.api-secret}")
+    @Value("${iflytek.speech.apisecret}")
     private String speechApiSecret;
 
-    @Value("${iflytek.tts.app-id}")
+    @Value("${iflytek.tts.appid}")
     private String ttsAppId;
 
-    @Value("${iflytek.tts.api-key}")
+    @Value("${iflytek.tts.apikey}")
     private String ttsApiKey;
 
-    @Value("${iflytek.tts.api-secret}")
+    @Value("${iflytek.tts.apisecret}")
     private String ttsApiSecret;
 
     private static final String SPEECH_HOST = "iat-api.xfyun.cn";
