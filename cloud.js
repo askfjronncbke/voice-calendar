@@ -46,6 +46,10 @@ function showCloudGreeting() {
 
   cloud.classList.add("show");
 
+  // 8 秒后自动关闭
+  if (window._cloudAutoCloseTimer) clearTimeout(window._cloudAutoCloseTimer);
+  window._cloudAutoCloseTimer = setTimeout(closeCloudGreeting, 8000);
+
   // TTS 播报
   if (events.length === 0) {
     speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + weekday + "，暂无安排，祝您生活愉快！");
@@ -59,6 +63,7 @@ function showCloudGreeting() {
 }
 
 function closeCloudGreeting() {
+  if (window._cloudAutoCloseTimer) clearTimeout(window._cloudAutoCloseTimer);
   var cloud = document.getElementById("cloudGreeting");
   cloud.classList.add("hide");
   setTimeout(function () {

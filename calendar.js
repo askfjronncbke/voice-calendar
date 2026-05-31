@@ -124,7 +124,11 @@ function renderCalendar() {
     }
 
     cell.addEventListener("click", () => {
-      if (isOtherMonth) return;
+      if (isOtherMonth) {
+        // 自动跳转到对应月份
+        currentYear = cellYear;
+        currentMonth = cellMonth;
+      }
       selectedDate = dateStr;
       renderCalendar();
       showEventPanel(dateStr);
@@ -162,6 +166,13 @@ function showEventPanel(dateStr) {
   }
 
   const events = getEventsByDate(dateStr);
+  // 按时间排序：有时间的从早到晚，全天事件排在最后
+  events.sort((a, b) => {
+    if (!a.time && !b.time) return 0;
+    if (!a.time) return 1;
+    if (!b.time) return -1;
+    return a.time.localeCompare(b.time);
+  });
   listEl.innerHTML = "";
 
   if (events.length === 0) {
@@ -194,8 +205,9 @@ function showEventPanel(dateStr) {
       delBtn.title = "删除事件";
       delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        showConfirm("确定删除「" + ev.title + "」吗？", function () {
+        showConfirm("确定要删除事件「" + ev.title + "」吗？", function () {
           deleteEvent(ev.id);
+          // 重新渲染日历圆点 + 事件列表
           renderCalendar();
           showEventPanel(dateStr);
         });

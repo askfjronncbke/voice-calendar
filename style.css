@@ -521,6 +521,7 @@ body::after {
   transition: all 0.2s;
   box-shadow: 0 4px 20px rgba(233,69,96,0.3);
   position: relative;
+  touch-action: none;
 }
 
 .mic-btn::after {
@@ -1737,4 +1738,10 @@ body.large-font .event-panel-date {
   box-shadow: 0 0 18px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.12);
   z-index: 100;
   touch-action: none;
+}
+
+/* 浅色模式拖拽光晕改为红色 */
+body.theme-light .mic-btn.dragging,
+body.theme-time-light .mic-btn.dragging {
+  box-shadow: 0 0 18px rgba(233,69,96,0.45), 0 0 40px rgba(233,69,96,0.2);
 }
