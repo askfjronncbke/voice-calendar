@@ -23,16 +23,16 @@ public class IflytekAuthService {
 
     public Map<String, String> generateSpeechAuth() {
         return generateAuth(SPEECH_HOST, SPEECH_PATH,
-                requireEnv("IFLYTEK_SPEECH_API_KEY"),
-                requireEnv("IFLYTEK_SPEECH_API_SECRET"),
-                requireEnv("IFLYTEK_SPEECH_APP_ID"));
+                requireEnv("IFLYTEK_SPEECH_APIKEY"),
+                requireEnv("IFLYTEK_SPEECH_APISECRET"),
+                requireEnv("IFLYTEK_SPEECH_APPID"));
     }
 
     public Map<String, String> generateTtsAuth() {
         return generateAuth(TTS_HOST, TTS_PATH,
-                requireEnv("IFLYTEK_TTS_API_KEY"),
-                requireEnv("IFLYTEK_TTS_API_SECRET"),
-                requireEnv("IFLYTEK_TTS_APP_ID"));
+                requireEnv("IFLYTEK_TTS_APIKEY"),
+                requireEnv("IFLYTEK_TTS_APISECRET"),
+                requireEnv("IFLYTEK_TTS_APPID"));
     }
 
     private String requireEnv(String name) {
