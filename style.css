@@ -1739,3 +1739,9 @@ body.large-font .event-panel-date {
   z-index: 100;
   touch-action: none;
 }
+
+/* 浅色模式拖拽光晕改为红色 */
+body.theme-light .mic-btn.dragging,
+body.theme-time-light .mic-btn.dragging {
+  box-shadow: 0 0 18px rgba(233,69,96,0.45), 0 0 40px rgba(233,69,96,0.2);
+}

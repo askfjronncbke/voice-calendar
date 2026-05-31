@@ -241,8 +241,8 @@ function cleanupRecording() {
 
 // ---------- 初始化 ----------
 
-let _dragTimer = null;
 let _isDragging = false;
+let _justDragged = false;
 let _offsetX = 0;
 let _offsetY = 0;
 let _suppressClick = false;
@@ -296,16 +296,38 @@ function initSpeech() {
         micBtn.style.top = rect.top + "px";
       }
     }, 500);
+  // 长按拖动：第一次 pointermove 就进入拖拽，零延迟跟手
+  micBtn.addEventListener("pointerdown", function (e) {
+    var rect = micBtn.getBoundingClientRect();
+    _offsetX = e.clientX - rect.left;
+    _offsetY = e.clientY - rect.top;
+    _isDragging = false;
   });
 
   document.addEventListener("pointermove", function (e) {
-    if (!_isDragging) return;
+    if (_isDragging) {
+      // 已在拖拽：跟随移动
+      micBtn.style.left = (e.clientX - _offsetX) + "px";
+      micBtn.style.top = (e.clientY - _offsetY) + "px";
+      return;
+    }
+
+    // pointerdown 还没触发过（_offsetX 仍为 0 且未拖拽中），忽略
+    if (_offsetX === 0 && _offsetY === 0) return;
+
+    // 第一次移动：立刻切 fixed 并进入拖拽，然后立即跟手
+    _isDragging = true;
+    var rect = micBtn.getBoundingClientRect();
+    micBtn.style.position = "fixed";
+    micBtn.style.left = rect.left + "px";
+    micBtn.style.top = rect.top + "px";
+    micBtn.classList.add("dragging");
+    // 接着立刻更新到当前光标位置（修复首次只能动一点点的 bug）
     micBtn.style.left = (e.clientX - _offsetX) + "px";
     micBtn.style.top = (e.clientY - _offsetY) + "px";
   });
 
   document.addEventListener("pointerup", function () {
-    clearTimeout(_dragTimer);
     if (_isDragging) {
       _isDragging = false;
       micBtn.classList.remove("dragging");
@@ -319,9 +341,12 @@ function initSpeech() {
   micBtn.addEventListener("pointercancel", function () {
     clearTimeout(_dragTimer);
     if (_isDragging) {
+      _justDragged = true;
       _isDragging = false;
       micBtn.classList.remove("dragging");
     }
+    _offsetX = 0;
+    _offsetY = 0;
   });
 
   // ---- 短按录音 ----
@@ -329,6 +354,8 @@ function initSpeech() {
   micBtn.addEventListener("click", function () {
     if (_isDragging || _suppressClick) {
       _suppressClick = false;
+    if (_isDragging || _justDragged) {
+      _justDragged = false;
       return;
     }
     unlockAudio();

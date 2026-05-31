@@ -19,3 +19,4 @@ Thumbs.db
 
 # Config (contains real API keys)
 application.properties
+src/main/resources/application.properties
