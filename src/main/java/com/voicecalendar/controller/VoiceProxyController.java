@@ -12,7 +12,7 @@ import java.util.Map;
 @RequestMapping("/api/voice-proxy")
 public class VoiceProxyController {
 
-    @Value("${deepseek.api-key}")
+    @Value("${deepseek.api.key}")
     private String deepseekApiKey;
 
     private final IflytekAuthService iflytekAuthService;
