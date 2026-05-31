@@ -1,7 +1,6 @@
 package com.voicecalendar.controller;
 
 import com.voicecalendar.service.IflytekAuthService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -12,15 +11,20 @@ import java.util.Map;
 @RequestMapping("/api/voice-proxy")
 public class VoiceProxyController {
 
-    @Value("${deepseek.api.key}")
-    private String deepseekApiKey;
-
     private final IflytekAuthService iflytekAuthService;
     private final RestTemplate restTemplate;
 
     public VoiceProxyController(IflytekAuthService iflytekAuthService) {
         this.iflytekAuthService = iflytekAuthService;
         this.restTemplate = new RestTemplate();
+    }
+
+    private String deepseekApiKey() {
+        String key = System.getenv("DEEPSEEK_API_KEY");
+        if (key == null || key.isBlank()) {
+            throw new RuntimeException("Missing environment variable: DEEPSEEK_API_KEY");
+        }
+        return key;
     }
 
     // ---------- DeepSeek 代理 ----------
@@ -30,7 +34,7 @@ public class VoiceProxyController {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(deepseekApiKey);
+            headers.setBearerAuth(deepseekApiKey());
 
             HttpEntity<Map<String, Object>> request =
                     new HttpEntity<>(body, headers);

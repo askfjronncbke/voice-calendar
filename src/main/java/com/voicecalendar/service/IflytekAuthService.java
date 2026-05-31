@@ -1,6 +1,5 @@
 package com.voicecalendar.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -17,35 +16,31 @@ import java.util.Map;
 @Service
 public class IflytekAuthService {
 
-    @Value("${iflytek.speech.app.id}")
-    private String speechAppId;
-
-    @Value("${iflytek.speech.api.key}")
-    private String speechApiKey;
-
-    @Value("${iflytek.speech.api.secret}")
-    private String speechApiSecret;
-
-    @Value("${iflytek.tts.app.id}")
-    private String ttsAppId;
-
-    @Value("${iflytek.tts.api.key}")
-    private String ttsApiKey;
-
-    @Value("${iflytek.tts.api.secret}")
-    private String ttsApiSecret;
-
     private static final String SPEECH_HOST = "iat-api.xfyun.cn";
     private static final String SPEECH_PATH = "/v2/iat";
     private static final String TTS_HOST = "tts-api.xfyun.cn";
     private static final String TTS_PATH = "/v2/tts";
 
     public Map<String, String> generateSpeechAuth() {
-        return generateAuth(SPEECH_HOST, SPEECH_PATH, speechApiKey, speechApiSecret, speechAppId);
+        return generateAuth(SPEECH_HOST, SPEECH_PATH,
+                requireEnv("IFLYTEK_SPEECH_API_KEY"),
+                requireEnv("IFLYTEK_SPEECH_API_SECRET"),
+                requireEnv("IFLYTEK_SPEECH_APP_ID"));
     }
 
     public Map<String, String> generateTtsAuth() {
-        return generateAuth(TTS_HOST, TTS_PATH, ttsApiKey, ttsApiSecret, ttsAppId);
+        return generateAuth(TTS_HOST, TTS_PATH,
+                requireEnv("IFLYTEK_TTS_API_KEY"),
+                requireEnv("IFLYTEK_TTS_API_SECRET"),
+                requireEnv("IFLYTEK_TTS_APP_ID"));
+    }
+
+    private String requireEnv(String name) {
+        String value = System.getenv(name);
+        if (value == null || value.isBlank()) {
+            throw new RuntimeException("Missing environment variable: " + name);
+        }
+        return value;
     }
 
     private Map<String, String> generateAuth(String host, String path,
@@ -82,6 +77,8 @@ public class IflytekAuthService {
             result.put("url", wsUrl);
             result.put("appId", appId);
             return result;
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate iFlytek auth: " + e.getMessage(), e);
         }
