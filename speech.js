@@ -316,6 +316,9 @@ function initSpeech() {
         top: parseInt(micBtn.style.top)
       }));
     }
+    // 重置偏移量，防止后续无关的 pointermove 误触发拖拽
+    _offsetX = 0;
+    _offsetY = 0;
   });
 
   micBtn.addEventListener("pointercancel", function () {
