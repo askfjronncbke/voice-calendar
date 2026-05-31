@@ -15,59 +15,185 @@
   </div>
 
   <div class="app">
-    <!-- 月份导航 -->
-    <div class="calendar-header">
-      <button class="nav-btn" id="prevMonth">&lt;</button>
-      <span class="month-year" id="monthYear"></span>
-      <button class="nav-btn" id="nextMonth">&gt;</button>
-    </div>
-
-    <!-- 星期表头 -->
-    <div class="weekdays">
-      <span>日</span><span>一</span><span>二</span><span>三</span>
-      <span>四</span><span>五</span><span>六</span>
-    </div>
-
-    <!-- 日期格子 -->
-    <div class="days-grid" id="daysGrid"></div>
-
-    <!-- 当天事件列表 -->
-    <div class="event-panel" id="eventPanel">
-      <div class="event-panel-header">
-        <span class="event-panel-date" id="eventPanelDate"></span>
+    <!-- 日历页面 -->
+    <div class="page active" id="page-calendar">
+      <div class="calendar-header">
+        <button class="nav-btn" id="prevMonth">&lt;</button>
+        <span class="month-year" id="monthYear"></span>
+        <button class="nav-btn" id="nextMonth">&gt;</button>
       </div>
-      <div class="event-list" id="eventList"></div>
-    </div>
 
-    <!-- 语音区域 -->
-    <div class="voice-area">
-      <div class="voice-result" id="voiceResult"></div>
-      <div class="voice-error" id="voiceError"></div>
-      <div class="conflict-prompt" id="conflictPrompt">
-        <div class="conflict-msg" id="conflictMsg"></div>
-        <div class="conflict-btns">
-          <button class="conflict-confirm" id="conflictConfirm">确认添加</button>
-          <button class="conflict-cancel" id="conflictCancel">取消</button>
+      <div class="weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span>
+        <span>四</span><span>五</span><span>六</span>
+      </div>
+
+      <div class="days-grid" id="daysGrid"></div>
+
+      <div class="event-panel" id="eventPanel">
+        <div class="event-panel-header">
+          <span class="event-panel-date" id="eventPanelDate"></span>
+        </div>
+        <div class="event-list" id="eventList"></div>
+      </div>
+
+      <div class="voice-area">
+        <div class="voice-result" id="voiceResult"></div>
+        <div class="voice-error" id="voiceError"></div>
+        <div class="conflict-prompt" id="conflictPrompt">
+          <div class="conflict-msg" id="conflictMsg"></div>
+          <div class="conflict-btns">
+            <button class="conflict-confirm" id="conflictConfirm">确认添加</button>
+            <button class="conflict-cancel" id="conflictCancel">取消</button>
+          </div>
         </div>
       </div>
-      <div class="voice-controls">
-        <button class="mic-btn" id="micBtn">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
-      </button>
+    </div>
+
+    <!-- 日记页面 -->
+    <div class="page" id="page-diary">
+      <div class="diary-header">
+        <div class="diary-date-wrap">
+          <button class="diary-date-btn" id="diaryDateBtn"></button>
+          <div class="mini-cal-popup" id="miniCalPopup">
+            <div class="mini-cal-header">
+              <button class="mini-cal-arrow" id="miniCalPrevYear">&laquo;</button>
+              <span class="mini-cal-year" id="miniCalYear"></span>
+              <button class="mini-cal-arrow" id="miniCalNextYear">&raquo;</button>
+              <button class="mini-cal-arrow" id="miniCalPrevMonth">&lsaquo;</button>
+              <span class="mini-cal-month" id="miniCalMonth"></span>
+              <button class="mini-cal-arrow" id="miniCalNextMonth">&rsaquo;</button>
+            </div>
+            <div class="mini-cal-weekdays">
+              <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+            </div>
+            <div class="mini-cal-grid" id="miniCalGrid"></div>
+          </div>
+        </div>
+        <button class="diary-trash-btn" id="diaryTrashBtn" title="清空日记">🗑️</button>
       </div>
+      <div class="diary-paper">
+        <textarea class="diary-textarea" id="diaryTextarea" placeholder="在这里写下日记..."></textarea>
+        <div class="diary-resize-handle" id="diaryResizeHandle"></div>
+      </div>
+      <div class="voice-area">
+        <div class="voice-result" id="diaryVoiceResult"></div>
+        <div class="voice-error" id="diaryVoiceError"></div>
+      </div>
+    </div>
+
+    <!-- 设置页面 -->
+    <div class="page" id="page-settings">
+      <div class="settings-section">
+        <div class="settings-section-title">声音设置</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <span class="settings-label">发音人</span>
+            <div class="settings-select" data-key="voice">
+              <button class="settings-select-btn" id="voiceSelectBtn">女声</button>
+              <div class="settings-select-dropdown">
+                <div class="settings-select-item active" data-value="female">女声</div>
+                <div class="settings-select-item" data-value="male">男声</div>
+              </div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">语音播报</span>
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" data-key="ttsEnabled" checked>
+              <span class="settings-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">显示设置</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <span class="settings-label">主题模式</span>
+            <div class="settings-select" data-key="theme">
+              <button class="settings-select-btn" id="themeSelectBtn">深色</button>
+              <div class="settings-select-dropdown">
+                <div class="settings-select-item active" data-value="dark">深色</div>
+                <div class="settings-select-item" data-value="light">浅色</div>
+                <div class="settings-select-item" data-value="time">跟随时间</div>
+              </div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">大字号</span>
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" data-key="largeFont">
+              <span class="settings-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">帮助</div>
+        <div class="settings-card">
+          <button class="settings-help-btn" id="settingsHelpBtn">查看支持的语音指令</button>
+        </div>
+      </div>
+    </div>
+    <!-- 共享麦克风按钮 -->
+    <button class="mic-btn" id="micBtn">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </button>
   </div>
 
+  <!-- 帮助指令弹窗 -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal-box">
+      <div class="modal-msg" id="helpModalMsg"></div>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-confirm" id="helpModalClose">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自定义确认弹窗 -->
+  <div class="modal-overlay" id="diaryConfirmModal">
+    <div class="modal-box">
+      <div class="modal-msg" id="diaryConfirmMsg"></div>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-cancel" id="diaryConfirmNo">取消</button>
+        <button class="modal-btn modal-btn-confirm" id="diaryConfirmYes">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航栏 -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-tab active" data-page="calendar">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">日历</span>
+    </button>
+    <button class="nav-tab" data-page="diary">
+      <span class="nav-icon">📝</span>
+      <span class="nav-label">日记</span>
+    </button>
+    <button class="nav-tab" data-page="settings">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">设置</span>
+    </button>
+  </nav>
+
   <script src="storage.js"></script>
+  <script src="diary.js"></script>
   <script src="calendar.js"></script>
   <script src="tts.js"></script>
   <script src="parser.js"></script>
   <script src="speech.js"></script>
   <script src="cloud.js"></script>
+  <script src="settings.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

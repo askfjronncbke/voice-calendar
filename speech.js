@@ -6,10 +6,7 @@
 // - 实时识别结果显示
 // ============================================
 
-const APP_ID = "b6427154";
-const API_KEY = "4e1ff88bf9216fac771776a3f6bdc379";
-const API_SECRET = "NTEyNDJiNjJjODRlZDM3YWQ5OTBmMGVh";
-const WS_URL = "wss://iat-api.xfyun.cn/v2/iat";
+let _speechAppId = null;
 
 let isRecording = false;
 let ws = null;
@@ -21,51 +18,17 @@ let accumulatedText = "";
 let micBtn = null;
 let voiceResult = null;
 let voiceError = null;
+let speechCallback = null;
+
+function setSpeechCallback(fn) { speechCallback = fn; }
+
+function setSpeechElements(mic, result, error) {
+  micBtn = mic;
+  voiceResult = result;
+  voiceError = error;
+}
 
 // ---------- 工具函数 ----------
-
-function getRFC1123Date() {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  const d = new Date();
-  return (
-    days[d.getUTCDay()] +
-    ", " +
-    String(d.getUTCDate()).padStart(2, "0") +
-    " " +
-    months[d.getUTCMonth()] +
-    " " +
-    d.getUTCFullYear() +
-    " " +
-    String(d.getUTCHours()).padStart(2, "0") +
-    ":" +
-    String(d.getUTCMinutes()).padStart(2, "0") +
-    ":" +
-    String(d.getUTCSeconds()).padStart(2, "0") +
-    " GMT"
-  );
-}
-
-async function hmacSha256(message, secret) {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
-  const bytes = new Uint8Array(sig);
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
 
 function arrayBufferToBase64(buffer) {
   const bytes = new Uint8Array(buffer);
@@ -80,30 +43,11 @@ function arrayBufferToBase64(buffer) {
 // ---------- 鉴权 ----------
 
 async function getAuthUrl() {
-  const url = new URL(WS_URL);
-  const host = url.host;
-  const date = getRFC1123Date();
-
-  const signatureOrigin =
-    "host: " + host + "\n" +
-    "date: " + date + "\n" +
-    "GET " + url.pathname + " HTTP/1.1";
-
-  const signature = await hmacSha256(signatureOrigin, API_SECRET);
-
-  const authOrigin =
-    'api_key="' + API_KEY +
-    '", algorithm="hmac-sha256"' +
-    ', headers="host date request-line"' +
-    ', signature="' + signature + '"';
-
-  const authorization = btoa(authOrigin);
-
-  url.searchParams.set("host", host);
-  url.searchParams.set("date", date);
-  url.searchParams.set("authorization", authorization);
-
-  return url.toString();
+  const response = await fetch("http://localhost:8080/api/voice-proxy/speech-auth");
+  if (!response.ok) throw new Error("Speech auth error: " + response.status);
+  const data = await response.json();
+  _speechAppId = data.appId;
+  return data.url;
 }
 
 // ---------- 发送音频帧 ----------
@@ -112,7 +56,7 @@ function sendAudioFrame(audioBase64, status) {
   if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
   const frame = {
-    common: { app_id: APP_ID },
+    common: { app_id: _speechAppId },
     business: {
       language: "zh_cn",
       domain: "iat",
@@ -170,7 +114,12 @@ function handleMessage(event) {
   if (result.ls && accumulatedText.replace(/[。，！？、\.\,\!\?\s]/g, "").length > 0) {
     console.log("Final text for parsing:", JSON.stringify(accumulatedText));
     voiceError.textContent = "";
-    parseAndExecute(accumulatedText.trim());
+    if (speechCallback) {
+      speechCallback(accumulatedText.trim());
+      speechCallback = null;
+    } else {
+      parseAndExecute(accumulatedText.trim());
+    }
   }
 }
 
@@ -293,15 +242,40 @@ function cleanupRecording() {
 // ---------- 初始化 ----------
 
 let _dragTimer = null;
-let _dragActive = false;
-let _dragOffsetX = 0;
-let _dragOffsetY = 0;
+let _isDragging = false;
+let _offsetX = 0;
+let _offsetY = 0;
 let _suppressClick = false;
+
+function activeVoiceElements() {
+  const diaryPage = document.getElementById("page-diary");
+  if (diaryPage && diaryPage.classList.contains("active")) {
+    return {
+      result: document.getElementById("diaryVoiceResult"),
+      error: document.getElementById("diaryVoiceError"),
+    };
+  }
+  return {
+    result: document.getElementById("voiceResult"),
+    error: document.getElementById("voiceError"),
+  };
+}
+
+var _audioUnlocked = false;
+
+function unlockAudio() {
+  if (_audioUnlocked) return;
+  _audioUnlocked = true;
+  window._sharedAudio = new Audio();
+  window._sharedAudio.play().catch(function () {});
+  window._sharedAudio.pause();
+}
 
 function initSpeech() {
   micBtn = document.getElementById("micBtn");
-  voiceResult = document.getElementById("voiceResult");
-  voiceError = document.getElementById("voiceError");
+  var els = activeVoiceElements();
+  voiceResult = els.result;
+  voiceError = els.error;
 
   // ---- 麦克风拖动 ----
 
@@ -309,29 +283,31 @@ function initSpeech() {
     _suppressClick = false;
     micBtn.setPointerCapture(e.pointerId);
     var rect = micBtn.getBoundingClientRect();
-    _dragOffsetX = e.clientX - rect.left;
-    _dragOffsetY = e.clientY - rect.top;
+    _offsetX = e.clientX - rect.left;
+    _offsetY = e.clientY - rect.top;
 
     _dragTimer = setTimeout(function () {
-      _dragActive = true;
+      _isDragging = true;
       _suppressClick = true;
       micBtn.classList.add("dragging");
-      micBtn.style.position = "fixed";
-      micBtn.style.left = (e.clientX - _dragOffsetX) + "px";
-      micBtn.style.top = (e.clientY - _dragOffsetY) + "px";
+      if (!micBtn.style.position || micBtn.style.position !== "fixed") {
+        micBtn.style.position = "fixed";
+        micBtn.style.left = rect.left + "px";
+        micBtn.style.top = rect.top + "px";
+      }
     }, 500);
   });
 
-  micBtn.addEventListener("pointermove", function (e) {
-    if (!_dragActive) return;
-    micBtn.style.left = (e.clientX - _dragOffsetX) + "px";
-    micBtn.style.top = (e.clientY - _dragOffsetY) + "px";
+  document.addEventListener("pointermove", function (e) {
+    if (!_isDragging) return;
+    micBtn.style.left = (e.clientX - _offsetX) + "px";
+    micBtn.style.top = (e.clientY - _offsetY) + "px";
   });
 
-  micBtn.addEventListener("pointerup", function () {
+  document.addEventListener("pointerup", function () {
     clearTimeout(_dragTimer);
-    if (_dragActive) {
-      _dragActive = false;
+    if (_isDragging) {
+      _isDragging = false;
       micBtn.classList.remove("dragging");
       localStorage.setItem("mic_btn_position", JSON.stringify({
         left: parseInt(micBtn.style.left),
@@ -342,8 +318,8 @@ function initSpeech() {
 
   micBtn.addEventListener("pointercancel", function () {
     clearTimeout(_dragTimer);
-    if (_dragActive) {
-      _dragActive = false;
+    if (_isDragging) {
+      _isDragging = false;
       micBtn.classList.remove("dragging");
     }
   });
@@ -351,13 +327,32 @@ function initSpeech() {
   // ---- 短按录音 ----
 
   micBtn.addEventListener("click", function () {
-    if (_suppressClick) {
+    if (_isDragging || _suppressClick) {
       _suppressClick = false;
       return;
     }
+    unlockAudio();
+    var els = activeVoiceElements();
+    voiceResult = els.result;
+    voiceError = els.error;
     if (isRecording) {
       stopRecording();
     } else {
+      var diaryPage = document.getElementById("page-diary");
+      if (diaryPage && diaryPage.classList.contains("active")) {
+        setSpeechCallback(function (text) {
+          var textarea = document.getElementById("diaryTextarea");
+          if (textarea) {
+            var cur = textarea.value;
+            var sep = cur && !cur.endsWith("\n") ? "\n" : "";
+            textarea.value = cur + sep + text + "\n";
+            saveDiary(diaryDate, textarea.value);
+          }
+          voiceResult.textContent = "";
+        });
+      } else {
+        setSpeechCallback(null);
+      }
       startRecording();
     }
   });

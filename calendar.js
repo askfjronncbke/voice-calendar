@@ -98,6 +98,14 @@ function renderCalendar() {
       cell.appendChild(dot);
     }
 
+    // 日记铅笔图标
+    if (hasDiary(dateStr)) {
+      const pencil = document.createElement("span");
+      pencil.classList.add("pencil");
+      pencil.textContent = "✏";
+      cell.appendChild(pencil);
+    }
+
     if (isOtherMonth) {
       cell.classList.add("other-month");
     }

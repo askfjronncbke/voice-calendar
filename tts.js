@@ -4,10 +4,7 @@
 // - 支持发音人切换（男声/女声）
 // ============================================
 
-const TTS_APP_ID = "b6427154";
-const TTS_API_KEY = "4e1ff88bf9216fac771776a3f6bdc379";
-const TTS_API_SECRET = "NTEyNDJiNjJjODRlZDM3YWQ5OTBmMGVh";
-const TTS_WS_URL = "wss://tts-api.xfyun.cn/v2/tts";
+let _ttsAppId = null;
 
 // 发音人配置
 const SPEAKERS = {
@@ -17,78 +14,19 @@ const SPEAKERS = {
 
 let ttsCurrentVoice = "female"; // "female" | "male"
 let ttsAudioEl = null;
+let ttsEnabled = true;
 
-// ---------- 鉴权（复用讯飞 HMAC-SHA256 签名） ----------
+function setTTSEnabled(val) { ttsEnabled = !!val; }
+function isTTSEnabled() { return ttsEnabled; }
 
-function ttsGetRFC1123Date() {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  const d = new Date();
-  return (
-    days[d.getUTCDay()] +
-    ", " +
-    String(d.getUTCDate()).padStart(2, "0") +
-    " " +
-    months[d.getUTCMonth()] +
-    " " +
-    d.getUTCFullYear() +
-    " " +
-    String(d.getUTCHours()).padStart(2, "0") +
-    ":" +
-    String(d.getUTCMinutes()).padStart(2, "0") +
-    ":" +
-    String(d.getUTCSeconds()).padStart(2, "0") +
-    " GMT"
-  );
-}
-
-async function ttsHmacSha256(message, secret) {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
-  const bytes = new Uint8Array(sig);
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
+// ---------- 鉴权（由 Java 后端代理生成签名 URL） ----------
 
 async function ttsGetAuthUrl() {
-  const url = new URL(TTS_WS_URL);
-  const host = url.host;
-  const date = ttsGetRFC1123Date();
-  const path = url.pathname;
-
-  const signatureOrigin =
-    "host: " + host + "\n" +
-    "date: " + date + "\n" +
-    "GET " + path + " HTTP/1.1";
-
-  const signature = await ttsHmacSha256(signatureOrigin, TTS_API_SECRET);
-
-  const authOrigin =
-    'api_key="' + TTS_API_KEY +
-    '", algorithm="hmac-sha256"' +
-    ', headers="host date request-line"' +
-    ', signature="' + signature + '"';
-
-  const authorization = btoa(authOrigin);
-
-  url.searchParams.set("host", host);
-  url.searchParams.set("date", date);
-  url.searchParams.set("authorization", authorization);
-
-  return url.toString();
+  const response = await fetch("http://localhost:8080/api/voice-proxy/tts-auth");
+  if (!response.ok) throw new Error("TTS auth error: " + response.status);
+  const data = await response.json();
+  _ttsAppId = data.appId;
+  return data.url;
 }
 
 // ---------- 音频解码 ----------
@@ -136,20 +74,43 @@ function ttsPlayAudio(audioChunks) {
   const blob = new Blob([bytes.buffer], { type: "audio/mp3" });
   const url = URL.createObjectURL(blob);
 
-  if (ttsAudioEl) {
-    ttsAudioEl.pause();
-    URL.revokeObjectURL(ttsAudioEl.src);
+  var audioEl = window._sharedAudio || new Audio();
+  // 共享 Audio 元素被移除时回退到新建
+  if (!audioEl || !document.contains(audioEl)) {
+    audioEl = new Audio();
   }
+  audioEl.pause();
+  if (audioEl.src) {
+    URL.revokeObjectURL(audioEl.src);
+  }
+  audioEl.src = url;
+  audioEl.play().catch(function (e) {
+    console.warn("TTS playback:", e.message);
+  });
 
-  ttsAudioEl = new Audio(url);
-  ttsAudioEl.play().catch((e) => console.warn("TTS playback:", e.message));
+  audioEl.onended = function () {
+    URL.revokeObjectURL(url);
+  };
 
-  ttsAudioEl.onended = () => URL.revokeObjectURL(url);
+  ttsAudioEl = audioEl;
+}
+
+// ---------- 文本编码（UTF-8 → base64）----------
+
+function encodeText(text) {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(text);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 // ---------- 合成与播放 ----------
 
 async function speak(text) {
+  if (!ttsEnabled) return;
   if (!text || !text.trim()) return;
 
   try {
@@ -162,7 +123,7 @@ async function speak(text) {
       const speaker = SPEAKERS[ttsCurrentVoice] || SPEAKERS.female;
 
       const frame = {
-        common: { app_id: TTS_APP_ID },
+        common: { app_id: _ttsAppId },
         business: {
           aue: "lame",
           sfl: 1,
@@ -174,7 +135,7 @@ async function speak(text) {
         },
         data: {
           status: 2,
-          text: btoa(unescape(encodeURIComponent(text))),
+          text: encodeText(text),
         },
       };
 
