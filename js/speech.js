@@ -261,13 +261,46 @@ function activeVoiceElements() {
 }
 
 var _audioUnlocked = false;
+var _pendingGreeting = null;
 
-function unlockAudio() {
+function isAudioUnlocked() {
+  return _audioUnlocked;
+}
+
+function unlockAudio(callback) {
   if (_audioUnlocked) return;
   _audioUnlocked = true;
+
+  // 用 AudioContext 播放极短静音来可靠解锁浏览器的 autoplay 策略
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === "suspended") {
+      ctx.resume();
+    }
+    var buffer = ctx.createBuffer(1, 1, 22050);
+    var source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+    source.onended = function () {
+      ctx.close().catch(function () {});
+    };
+  } catch (e) {
+    // 降级：播放一段无声的数据 URI
+    var dummy = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
+    dummy.play().catch(function () {});
+  }
+
   window._sharedAudio = new Audio();
-  window._sharedAudio.play().catch(function () {});
-  window._sharedAudio.pause();
+
+  // 如果有待播报的问候语，立即播放
+  if (_pendingGreeting) {
+    var text = _pendingGreeting;
+    _pendingGreeting = null;
+    speak(text);
+  }
+
+  if (callback) callback();
 }
 
 function initSpeech() {

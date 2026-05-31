@@ -50,15 +50,22 @@ function showCloudGreeting() {
   if (window._cloudAutoCloseTimer) clearTimeout(window._cloudAutoCloseTimer);
   window._cloudAutoCloseTimer = setTimeout(closeCloudGreeting, 8000);
 
-  // TTS 播报
+  // TTS 播报（若音频未解锁，暂存等待首次用户点击后播放）
+  var greetingText;
   if (events.length === 0) {
-    speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + weekday + "，暂无安排，祝您生活愉快！");
+    greetingText = greeting + "，今天是" + fmtSpokenDate(todayStr) + weekday + "，暂无安排，祝您生活愉快！";
   } else {
     var eventList = events
       .map(function (e) { return (e.time ? fmtSpokenTime(e.time) + "，" : "") + e.title; })
       .join("、");
     var blessing = getBlessing(events[events.length - 1].title);
-    speak(greeting + "，今天是" + fmtSpokenDate(todayStr) + weekday + "，您有" + events.length + "个事件：" + eventList + "，" + blessing);
+    greetingText = greeting + "，今天是" + fmtSpokenDate(todayStr) + weekday + "，您有" + events.length + "个事件：" + eventList + "，" + blessing;
+  }
+
+  if (isAudioUnlocked()) {
+    speak(greetingText);
+  } else {
+    _pendingGreeting = greetingText;
   }
 }
 
