@@ -81,7 +81,7 @@ function buildDateContext() {
 // ---------- DeepSeek API 调用 ----------
 
 async function callDeepSeek(systemPrompt, userMessage) {
-  const response = await fetch("http://localhost:8080/api/voice-proxy/deepseek", {
+  const response = await fetch("https://voice-calendar-production.up.railway.app/api/voice-proxy/deepseek", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

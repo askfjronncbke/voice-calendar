@@ -22,7 +22,7 @@ function isTTSEnabled() { return ttsEnabled; }
 // ---------- 鉴权（由 Java 后端代理生成签名 URL） ----------
 
 async function ttsGetAuthUrl() {
-  const response = await fetch("http://localhost:8080/api/voice-proxy/tts-auth");
+  const response = await fetch("https://voice-calendar-production.up.railway.app/api/voice-proxy/tts-auth");
   if (!response.ok) throw new Error("TTS auth error: " + response.status);
   const data = await response.json();
   _ttsAppId = data.appId;
