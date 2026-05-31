@@ -142,9 +142,9 @@ function hideMiniCalendar() {
 
 // ---------- 自定义确认弹窗 ----------
 
-function showDiaryConfirm(onConfirm) {
+function showConfirm(msg, onConfirm) {
   const overlay = document.getElementById("diaryConfirmModal");
-  document.getElementById("diaryConfirmMsg").textContent = "确定清空今天的日记吗？";
+  document.getElementById("diaryConfirmMsg").textContent = msg;
   overlay.classList.add("show");
   document.getElementById("diaryConfirmYes").onclick = function () {
     overlay.classList.remove("show");
@@ -153,6 +153,32 @@ function showDiaryConfirm(onConfirm) {
   document.getElementById("diaryConfirmNo").onclick = function () {
     overlay.classList.remove("show");
   };
+}
+
+function showBinaryConfirm(msg, yesLabel, noLabel, onYes, onNo) {
+  var overlay = document.getElementById("diaryConfirmModal");
+  var yesBtn = document.getElementById("diaryConfirmYes");
+  var noBtn = document.getElementById("diaryConfirmNo");
+  document.getElementById("diaryConfirmMsg").textContent = msg;
+  yesBtn.textContent = yesLabel;
+  noBtn.textContent = noLabel;
+  overlay.classList.add("show");
+  yesBtn.onclick = function () {
+    overlay.classList.remove("show");
+    yesBtn.textContent = "确定";
+    noBtn.textContent = "取消";
+    onYes();
+  };
+  noBtn.onclick = function () {
+    overlay.classList.remove("show");
+    yesBtn.textContent = "确定";
+    noBtn.textContent = "取消";
+    if (onNo) onNo();
+  };
+}
+
+function showDiaryConfirm(onConfirm) {
+  showConfirm("确定清空今天的日记吗？", onConfirm);
 }
 
 // ---------- 日记框拖拽调整高度 ----------
